@@ -1,0 +1,25 @@
+---
+BasedOnStyle: LLVM
+AccessModifierOffset: -4
+AlignArrayOfStructures: Left
+AllowShortFunctionsOnASingleLine: None
+AllowShortLambdasOnASingleLine: None
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBinaryOperators: NonAssignment
+# BreakBeforeBraces: Allman # i am learning
+ColumnLimit:     120
+Cpp11BracedListStyle: false
+IncludeBlocks:   Preserve
+IndentPPDirectives: BeforeHash
+IndentWidth:     4
+IndentWrappedFunctionNames: true
+InsertNewlineAtEOF: true
+NamespaceIndentation: All
+PackConstructorInitializers: Never
+PointerAlignment: Left
+SeparateDefinitionBlocks: Always
+SortIncludes: false
+SpaceAfterTemplateKeyword: false
+TabWidth: 4
+UseTab: Never
