@@ -1,12 +1,25 @@
-#include "lox/lox.hpp"
+#include "lexer.hpp"
+
 #include <fstream>
 #include <iostream>
+
+static void process_buffer(const std::string& buffer) {
+    Lexer lexer(buffer);
+    lexer.tokenize();
+}
+
+static void process_script(const char* path, const std::string& buffer) {
+    std::cout << "Processing script: " << path << "\n";
+
+    Lexer lexer(buffer);
+    lexer.tokenize();
+}
 
 static void process_command_line() {
     std::string line;
     std::getline(std::cin, line);
 
-    lox::process_buffer(line);
+    process_buffer(line);
 }
 
 static void process_script(const char* path) {
@@ -28,7 +41,7 @@ static void process_script(const char* path) {
 
     file.close();
 
-    lox::process_script(path, buffer);
+    process_script(path, buffer);
 }
 
 int main(int argc, char** argv) {

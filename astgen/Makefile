@@ -1,9 +1,9 @@
 all: generate
 
 generate:
-	@mkdir -p ../src/lox/ast
+	@mkdir -p ../src/ast
 	@g++ -Wall -std=c++20 astgen.cpp -o astgen
-	@./astgen > ../src/lox/ast/ast.hpp
+	@./astgen
 
 clean:
 	rm -rf astgen

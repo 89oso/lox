@@ -8,8 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(lox LANGUAGES CXX)
 
 add_executable(lox
-	src/main.cpp
-	src/lox/lexer.cpp
-	src/lox/lox.cpp
-	src/lox/token.cpp
+    src/main.cpp
+    src/lexer.cpp
+    src/token.cpp
 )
