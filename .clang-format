@@ -4,6 +4,7 @@ AccessModifierOffset: -4
 AlignArrayOfStructures: Left
 AllowShortFunctionsOnASingleLine: None
 AllowShortLambdasOnASingleLine: None
+AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBinaryOperators: NonAssignment
