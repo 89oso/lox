@@ -61,9 +61,9 @@ struct Token {
     Token();
     Token(TokenType type);
     Token(int line, TokenType type);
-    Token(int line, int type, const std::string& value);
+    Token(int line, TokenType type, const std::string& value);
 
-    int type;
+    TokenType type;
     int line;
     std::string value;
 

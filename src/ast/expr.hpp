@@ -12,15 +12,30 @@ struct UnaryExpr : Expr {
     TokenType op;
     Expr* right;
 
+    UnaryExpr() = default;
+
+    UnaryExpr(TokenType op, Expr* right)
+        : op(op),
+          right(right) {
+    }
+
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
 };
 
 struct BinaryExpr : Expr {
-    TokenType op;
     Expr* left;
     Expr* right;
+    TokenType op;
+
+    BinaryExpr() = default;
+
+    BinaryExpr(Expr* left, Expr* right, TokenType op)
+        : left(left),
+          right(right),
+          op(op) {
+    }
 
     void accept(Visitor* visitor) override {
         visitor->visit(this);
@@ -30,6 +45,12 @@ struct BinaryExpr : Expr {
 struct GroupingExpr : Expr {
     Expr* expression;
 
+    GroupingExpr() = default;
+
+    GroupingExpr(Expr* expression)
+        : expression(expression) {
+    }
+
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -37,6 +58,8 @@ struct GroupingExpr : Expr {
 
 struct LiteralExpr : Expr {
     std::string value;
+
+    LiteralExpr() = default;
 
     LiteralExpr(std::string value)
         : value(value) {

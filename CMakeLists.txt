@@ -10,5 +10,6 @@ project(lox LANGUAGES CXX)
 add_executable(lox
     src/main.cpp
     src/lexer.cpp
+    src/parser.cpp
     src/token.cpp
 )

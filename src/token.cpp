@@ -21,7 +21,7 @@ Token::Token(int line, TokenType type)
       type(type) {
 }
 
-Token::Token(int line, int type, const std::string& value)
+Token::Token(int line, TokenType type, const std::string& value)
     : line(line),
       type(type),
       value(value) {

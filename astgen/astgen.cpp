@@ -96,6 +96,36 @@ static void write_expr_types(Writer& writer, const std::string& base) {
 
         writer.write_line();
 
+        // write the constructor
+        {
+            writer.write_line(1, type.name + type.base + "() = default;");
+            writer.write_line();
+
+            writer.write(1, type.name + type.base + "(");
+
+            for (auto& var : type.vars) {
+                writer.write(0, var.type + " " + var.name);
+                if (&var != &type.vars.back()) {
+                    writer.write(0, ", ");
+                }
+            }
+
+            writer.write(0, ") : ");
+
+            for (auto& var : type.vars) {
+                writer.write(0, var.name + "(" + var.name + ")");
+                if (&var != &type.vars.back()) {
+                    writer.write(0, ", ");
+                }
+            }
+
+            // braces for constructor
+            writer.write_line(0, " {");
+            writer.write_line(1, "}");
+
+            writer.write_line();
+        }
+
         writer.write_line(1, "void accept(Visitor* visitor) override {");
         writer.write_line(2, "visitor->visit(this);");
         writer.write_line(1, "}");
