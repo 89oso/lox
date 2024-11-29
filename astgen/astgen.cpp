@@ -115,7 +115,12 @@ static void write_expr_types(Writer& writer, const std::string& base) {
             writer.write(0, ") : ");
 
             for (auto& var : type.vars) {
-                writer.write(0, var.name + "(" + var.name + ")");
+                writer.write(0, var.name + "(");
+                if (var.type == "Node::ptr")
+                    writer.write(0, "std::move(" + var.name + ")");
+                else
+                    writer.write(0, var.name);
+                writer.write(0, ")");
                 if (&var != &type.vars.back()) {
                     writer.write(0, ", ");
                 }

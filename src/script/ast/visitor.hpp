@@ -8,8 +8,8 @@ struct LiteralExpr;
 struct Visitor {
     virtual ~Visitor() = default;
 
-    virtual void visit(UnaryExpr* expr) = 0;
-    virtual void visit(BinaryExpr* expr) = 0;
-    virtual void visit(GroupingExpr* expr) = 0;
-    virtual void visit(LiteralExpr* expr) = 0;
+    virtual void visit(UnaryExpr* node) = 0;
+    virtual void visit(BinaryExpr* node) = 0;
+    virtual void visit(GroupingExpr* node) = 0;
+    virtual void visit(LiteralExpr* node) = 0;
 };
