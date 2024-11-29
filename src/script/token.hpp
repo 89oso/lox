@@ -1,9 +1,12 @@
 #pragma once
 
+#include "../common/common.hpp"
+
 #include <string>
 
-enum TokenType : int {
+enum TokenType : u32 {
     TT_INVALID,
+    TT_EOF,
 
     // Single-character tokens.
     TT_LEFT_PAREN,
@@ -53,18 +56,17 @@ enum TokenType : int {
     TT_WHILE,
     TT_RESERVED_END,
 
-    TT_EOF,
     TT_RESERVED_COUNT = TT_RESERVED_END - TT_RESERVED_BEGIN,
 };
 
 struct Token {
     Token();
     Token(TokenType type);
-    Token(int line, TokenType type);
-    Token(int line, TokenType type, const std::string& value);
+    Token(u32 line, TokenType type);
+    Token(u32 line, TokenType type, const std::string& value);
 
     TokenType type;
-    int line;
+    u32 line;
     std::string value;
 
     static const char* reserved_keywords[];

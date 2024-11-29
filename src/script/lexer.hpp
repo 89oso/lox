@@ -9,17 +9,18 @@ public:
     Lexer(const std::string& buffer);
 
     void tokenize();
+    std::vector<Token>& tokens();
 
 private:
     std::string _buffer;
-    size_t _buffer_size;
+    usize _buffer_size;
     std::vector<Token> _tokens;
 
     bool _error;
-    int _start;
-    int _current;
-    int _line;
-    int _column;
+    u32 _start;
+    u32 _current;
+    u32 _line;
+    u32 _column;
 
     void add_token(TokenType type);
     void add_token(TokenType type, std::string value);

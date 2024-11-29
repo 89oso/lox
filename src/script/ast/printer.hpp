@@ -3,30 +3,15 @@
 #include "expr.hpp"
 #include <iostream>
 
-// BinaryExpr* expr = new BinaryExpr;
-// expr->op = TokenType::TT_STAR;
-//
-// UnaryExpr* left = new UnaryExpr;
-// left->op = TokenType::TT_MINUS;
-// left->right = new LiteralExpr("123");
-// expr->left = left;
-//
-// GroupingExpr* right = new GroupingExpr;
-// right->expression = new LiteralExpr("45.67");
-// expr->right = right;
-//
-// Printer p;
-// p.print(expr);
-
 struct Printer : public Visitor {
-    void print(Expr* expr) {
-        expr->accept(this);
+    void print(Node* node) {
+        node->accept(this);
     }
 
-    void visit(UnaryExpr* expr) override {
+    void visit(UnaryExpr* node) override {
         std::cout << "(";
 
-        switch (expr->op) {
+        switch (node->op) {
         case TokenType::TT_PLUS:
             std::cout << "+";
             break;
@@ -45,15 +30,15 @@ struct Printer : public Visitor {
 
         std::cout << " ";
 
-        expr->right->accept(this);
+        node->expr->accept(this);
 
         std::cout << ")";
     }
 
-    void visit(BinaryExpr* expr) override {
-        std::cout << "(";
+    void visit(BinaryExpr* node) override {
+        std::cout << "BinaryExpr(";
 
-        switch (expr->op) {
+        switch (node->op) {
         case TokenType::TT_PLUS:
             std::cout << "+";
             break;
@@ -66,32 +51,38 @@ struct Printer : public Visitor {
         case TokenType::TT_SLASH:
             std::cout << "/";
             break;
+        case TokenType::TT_EQUAL_EQUAL:
+            std::cout << "==";
+            break;
+        case TokenType::TT_BANG_EQUAL:
+            std::cout << "!=";
+            break;
         default:
             break;
         }
 
         std::cout << " ";
-        expr->left->accept(this);
+        node->left->accept(this);
 
         std::cout << " ";
-        expr->right->accept(this);
+        node->right->accept(this);
 
         std::cout << ")";
     }
 
-    void visit(GroupingExpr* expr) override {
+    void visit(GroupingExpr* node) override {
         std::cout << "(";
 
         std::cout << "group";
 
         std::cout << " ";
 
-        expr->expression->accept(this);
+        node->expr->accept(this);
 
         std::cout << ")";
     }
 
-    void visit(LiteralExpr* expr) override {
-        std::cout << expr->value;
+    void visit(LiteralExpr* node) override {
+        std::cout << node->value;
     }
 };

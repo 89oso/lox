@@ -10,13 +10,13 @@ struct Expr : public Node {
 
 struct UnaryExpr : Expr {
     TokenType op;
-    Expr* right;
+    Node::ptr expr;
 
     UnaryExpr() = default;
 
-    UnaryExpr(TokenType op, Expr* right)
+    UnaryExpr(TokenType op, Node::ptr expr)
         : op(op),
-          right(right) {
+          expr(std::move(expr)) {
     }
 
     void accept(Visitor* visitor) override {
@@ -25,16 +25,16 @@ struct UnaryExpr : Expr {
 };
 
 struct BinaryExpr : Expr {
-    Expr* left;
-    Expr* right;
     TokenType op;
+    Node::ptr left;
+    Node::ptr right;
 
     BinaryExpr() = default;
 
-    BinaryExpr(Expr* left, Expr* right, TokenType op)
-        : left(left),
-          right(right),
-          op(op) {
+    BinaryExpr(TokenType op, Node::ptr left, Node::ptr right)
+        : op(op),
+          left(std::move(left)),
+          right(std::move(right)) {
     }
 
     void accept(Visitor* visitor) override {
@@ -43,12 +43,12 @@ struct BinaryExpr : Expr {
 };
 
 struct GroupingExpr : Expr {
-    Expr* expression;
+    Node::ptr expr;
 
     GroupingExpr() = default;
 
-    GroupingExpr(Expr* expression)
-        : expression(expression) {
+    GroupingExpr(Node::ptr expr)
+        : expr(std::move(expr)) {
     }
 
     void accept(Visitor* visitor) override {

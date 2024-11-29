@@ -19,15 +19,15 @@ static void create_expr_types(const std::string& base) {
 
     types.push_back({ "Unary", base });
     types.back().vars.push_back({ "TokenType", "op" });
-    types.back().vars.push_back({ "Expr*", "right" });
+    types.back().vars.push_back({ "Node::ptr", "expr" });
 
     types.push_back({ "Binary", base });
-    types.back().vars.push_back({ "Expr*", "left" });
-    types.back().vars.push_back({ "Expr*", "right" });
     types.back().vars.push_back({ "TokenType", "op" });
+    types.back().vars.push_back({ "Node::ptr", "left" });
+    types.back().vars.push_back({ "Node::ptr", "right" });
 
     types.push_back({ "Grouping", base });
-    types.back().vars.push_back({ "Expr*", "expression" });
+    types.back().vars.push_back({ "Node::ptr", "expr" });
 
     types.push_back({ "Literal", base });
     types.back().vars.push_back({ "std::string", "value" });
@@ -46,11 +46,13 @@ static void generate_node_file() {
     writer.write_line();
 
     writer.write_line(0, "struct Node {");
+    writer.write_line(1, "using ptr = std::unique_ptr<Node>;");
+    writer.write_line();
     writer.write_line(1, "virtual ~Node() = default;");
     writer.write_line(1, "virtual void accept(Visitor* visitor) = 0;");
     writer.write_line(0, "};");
 
-    writer.flush_to_file("../src/ast/node.hpp");
+    writer.flush_to_file("../src/script/ast/node.hpp");
 }
 
 static void generate_visitor_file() {
@@ -70,12 +72,12 @@ static void generate_visitor_file() {
     writer.write_line();
 
     for (auto& type : expr_types) {
-        writer.write_line(1, "virtual void visit(" + type.name + type.base + "* expr) = 0;");
+        writer.write_line(1, "virtual void visit(" + type.name + type.base + "* node) = 0;");
     }
 
     writer.write_line(0, "};");
 
-    writer.flush_to_file("../src/ast/visitor.hpp");
+    writer.flush_to_file("../src/script/ast/visitor.hpp");
 }
 
 static void write_expr_types(Writer& writer, const std::string& base) {
@@ -148,7 +150,7 @@ static void generate_expr_file() {
 
     write_expr_types(writer, "Expr");
 
-    writer.flush_to_file("../src/ast/expr.hpp");
+    writer.flush_to_file("../src/script/ast/expr.hpp");
 }
 
 int main() {

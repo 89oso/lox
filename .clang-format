@@ -8,7 +8,6 @@ AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBinaryOperators: NonAssignment
-# BreakBeforeBraces: Allman # i am learning
 ColumnLimit:     120
 Cpp11BracedListStyle: false
 IncludeBlocks:   Preserve

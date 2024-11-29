@@ -1,7 +1,1 @@
-var truth = 42; // this is the truth
-while (truth != 0 and truth != 1000)
-{
-    truth--;
-}
-
-print "hello world";
+1+1

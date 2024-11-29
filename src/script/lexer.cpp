@@ -16,10 +16,14 @@ void Lexer::tokenize() {
         scan();
     }
 
-    Token token(_line, TT_EOF);
+    Token token(_line, TokenType::TT_EOF);
     _tokens.push_back(token);
 
     print_tokens();
+}
+
+std::vector<Token>& Lexer::tokens() {
+    return _tokens;
 }
 
 void Lexer::add_token(TokenType type) {
@@ -218,13 +222,13 @@ void Lexer::identifier() {
     while (peek() == '_' || is_alphanumeric(peek()))
         advance();
 
-    int type = TokenType::TT_IDENTIFIER;
+    u32 type = (u32)TokenType::TT_IDENTIFIER;
 
     std::string name = _buffer.substr(_start, _current - _start);
 
-    for (int i = 0; i < TT_RESERVED_COUNT; i++) {
+    for (u32 i = 0; i < (u32)TokenType::TT_RESERVED_COUNT; i++) {
         if (name == Token::reserved_keywords[i]) {
-            type = i + TT_RESERVED_BEGIN;
+            type = i + (u32)TokenType::TT_RESERVED_BEGIN;
             break;
         }
     }

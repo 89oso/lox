@@ -1,4 +1,6 @@
-#include "lexer.hpp"
+#include "script/lexer.hpp"
+#include "script/parser.hpp"
+#include "script/ast/printer.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -6,23 +8,21 @@
 static void process_buffer(const std::string& buffer) {
     Lexer lexer(buffer);
     lexer.tokenize();
+
+    // TODO: catch lexer errors
+
+    Parser parser(lexer.tokens());
+    Node::ptr root = parser.parse();
+
+    if (parser.error()) {
+        return;
+    }
+
+    Printer p;
+    p.print(root.get());
 }
 
-static void process_script(const char* path, const std::string& buffer) {
-    std::cout << "Processing script: " << path << "\n";
-
-    Lexer lexer(buffer);
-    lexer.tokenize();
-}
-
-static void process_command_line() {
-    std::string line;
-    std::getline(std::cin, line);
-
-    process_buffer(line);
-}
-
-static void process_script(const char* path) {
+static void process_from_file(const char* path) {
     std::ifstream file(path, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
@@ -41,7 +41,8 @@ static void process_script(const char* path) {
 
     file.close();
 
-    process_script(path, buffer);
+    std::cout << "Processing script: " << path << "\n";
+    process_buffer(buffer);
 }
 
 int main(int argc, char** argv) {
@@ -50,8 +51,12 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    if (argc == 1)
-        process_command_line();
-    else
-        process_script(argv[1]);
+    if (argc == 1) {
+        std::string line;
+        std::getline(std::cin, line);
+
+        process_buffer(line);
+    } else {
+        process_from_file(argv[1]);
+    }
 }
