@@ -1,5 +1,4 @@
 #include "script/parser.hpp"
-#include "script/ast/ast_printer.hpp"
 #include "script/ast/ast_json_dumper.hpp"
 
 #include <fstream>
@@ -12,9 +11,6 @@ static void process_buffer(const std::string& buffer) {
 
     if (parser.error())
         return;
-
-    ASTPrinter p;
-    p.print(root.get());
 
     AstJsonDumper ast_json_dumper;
     std::cout << ast_json_dumper.dump(root.get());

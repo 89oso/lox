@@ -1,13 +1,15 @@
-expression ::= equality
+expr ::= comma_expr
 
-equality ::= comparison ( ( "!=" | "==" ) comparison )* ;
+comma_expr ::= equality_expr ("," comma_expr)? ;
 
-comparison ::= term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+equality_expr ::= comparison_expr  ( ( "!=" | "==" ) comparison_expr  )* ;
 
-term ::= factor ( ( "-" | "+" ) factor )* ;
+comparison_expr ::= term_expr  ( ( ">" | ">=" | "<" | "<=" ) term_expr  )* ;
 
-factor ::= unary ( ( "/" | "*" ) unary )* ;
+term_expr ::= factor_expr ( ( "-" | "+" ) factor_expr  )* ;
 
-unary ::= ( "!" | "-" ) unary | primary ;
+factor_expr ::= unary_expr ( ( "/" | "*" ) unary_expr )* ;
 
-primary ::= NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+unary_expr ::= ( "!" | "-" ) unary_expr | primary_expr ;
+
+primary_expr ::= NUMBER | STRING | "true" | "false" | "nil" | "(" expr ")" ;

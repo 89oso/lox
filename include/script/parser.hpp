@@ -3,6 +3,8 @@
 #include "lexer.hpp"
 #include "ast/node.hpp"
 
+#include <vector>
+
 class Parser {
 public:
     Parser(const std::string& buffer);
@@ -36,7 +38,10 @@ private:
         return false;
     }
 
+    std::vector<Node::ptr> comma_expressions;
+
     Node::ptr parse_expr();
+    Node::ptr parse_comma_expr();
     Node::ptr parse_equality_expr();
     Node::ptr parse_comparison_expr();
     Node::ptr parse_term_expr();

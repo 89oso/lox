@@ -90,7 +90,25 @@ void Parser::sync() {
 }
 
 Node::ptr Parser::parse_expr() {
-    return parse_equality_expr();
+    return parse_comma_expr();
+}
+
+Node::ptr Parser::parse_comma_expr() {
+    Node::ptr expr = parse_equality_expr();
+
+    if (check(TokenType::TT_COMMA)) {
+        std::vector<Node::ptr> expressions;
+        expressions.push_back(std::move(expr));
+
+        while (match(TokenType::TT_COMMA)) {
+            Node::ptr next = parse_equality_expr();
+            expressions.push_back(std::move(next));
+        }
+
+        expr = std::make_unique<CommaExpr>(std::move(expressions));
+    }
+
+    return expr;
 }
 
 Node::ptr Parser::parse_equality_expr() {

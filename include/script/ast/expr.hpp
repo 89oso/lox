@@ -3,6 +3,8 @@
 #include "../token.hpp"
 #include "node.hpp"
 
+#include <vector>
+
 struct Expr : public Node {
     virtual ~Expr() = default;
     virtual void accept(Visitor* visitor) = 0;
@@ -12,9 +14,7 @@ struct UnaryExpr : Expr {
     TokenType op;
     Node::ptr expr;
 
-    UnaryExpr() = default;
-
-    UnaryExpr(TokenType op, Node::ptr expr)
+    explicit UnaryExpr(TokenType op, Node::ptr expr)
         : op(op),
           expr(std::move(expr)) {
     }
@@ -29,9 +29,7 @@ struct BinaryExpr : Expr {
     Node::ptr left;
     Node::ptr right;
 
-    BinaryExpr() = default;
-
-    BinaryExpr(TokenType op, Node::ptr left, Node::ptr right)
+    explicit BinaryExpr(TokenType op, Node::ptr left, Node::ptr right)
         : op(op),
           left(std::move(left)),
           right(std::move(right)) {
@@ -45,9 +43,7 @@ struct BinaryExpr : Expr {
 struct GroupingExpr : Expr {
     Node::ptr expr;
 
-    GroupingExpr() = default;
-
-    GroupingExpr(Node::ptr expr)
+    explicit GroupingExpr(Node::ptr expr)
         : expr(std::move(expr)) {
     }
 
@@ -59,10 +55,20 @@ struct GroupingExpr : Expr {
 struct LiteralExpr : Expr {
     std::string value;
 
-    LiteralExpr() = default;
-
-    LiteralExpr(std::string value)
+    explicit LiteralExpr(std::string value)
         : value(value) {
+    }
+
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+
+struct CommaExpr : Expr {
+    std::vector<Node::ptr> expressions;
+
+    explicit CommaExpr(std::vector<Node::ptr> expressions)
+        : expressions(std::move(expressions)) {
     }
 
     void accept(Visitor* visitor) override {
