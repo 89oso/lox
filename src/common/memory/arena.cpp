@@ -1,5 +1,5 @@
-#include "arena.hpp"
-#include "../utils.hpp"
+#include "common/memory/arena.hpp"
+#include "common/utils.hpp"
 
 #include <assert.h> // TODO: add custom assert
 #include <cstring>

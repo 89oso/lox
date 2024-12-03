@@ -1,4 +1,4 @@
-#include "token.hpp"
+#include "script/token.hpp"
 #include <iostream>
 
 const char* Token::reserved_keywords[] = {

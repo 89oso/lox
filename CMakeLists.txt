@@ -14,3 +14,5 @@ add_executable(lox
     src/script/parser.cpp
     src/script/token.cpp
 )
+
+target_include_directories(lox PRIVATE include/)

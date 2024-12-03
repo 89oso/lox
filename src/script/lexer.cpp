@@ -1,4 +1,4 @@
-#include "lexer.hpp"
+#include "script/lexer.hpp"
 #include <iostream>
 
 Lexer::Lexer(const std::string& buffer)
@@ -16,7 +16,7 @@ void Lexer::tokenize() {
         scan();
     }
 
-    Token token(_line, TokenType::TT_EOF);
+    Token token(_line, TT_EOF);
     _tokens.push_back(token);
 
     print_tokens();
@@ -71,69 +71,69 @@ void Lexer::scan() {
             while (peek() != '\n' && !is_eof())
                 advance();
         } else {
-            add_token(TokenType::TT_SLASH);
+            add_token(TT_SLASH);
         }
         break;
     case '(':
-        add_token(TokenType::TT_LEFT_PAREN);
+        add_token(TT_LEFT_PAREN);
         break;
     case ')':
-        add_token(TokenType::TT_RIGHT_PAREN);
+        add_token(TT_RIGHT_PAREN);
         break;
     case '{':
-        add_token(TokenType::TT_LEFT_BRACE);
+        add_token(TT_LEFT_BRACE);
         break;
     case '}':
-        add_token(TokenType::TT_RIGHT_BRACE);
+        add_token(TT_RIGHT_BRACE);
         break;
     case ',':
-        add_token(TokenType::TT_COMMA);
+        add_token(TT_COMMA);
         break;
     case '.':
-        add_token(TokenType::TT_DOT);
+        add_token(TT_DOT);
         break;
     case '-':
-        add_token(TokenType::TT_MINUS);
+        add_token(TT_MINUS);
         break;
     case '+':
-        add_token(TokenType::TT_PLUS);
+        add_token(TT_PLUS);
         break;
     case ';':
-        add_token(TokenType::TT_SEMICOLON);
+        add_token(TT_SEMICOLON);
         break;
     case '*':
-        add_token(TokenType::TT_STAR);
+        add_token(TT_STAR);
         break;
     case '!':
         if (peek() == '=') {
             advance();
-            add_token(TokenType::TT_BANG_EQUAL);
+            add_token(TT_BANG_EQUAL);
         } else {
-            add_token(TokenType::TT_BANG);
+            add_token(TT_BANG);
         }
         break;
     case '=':
         if (peek() == '=') {
             advance();
-            add_token(TokenType::TT_EQUAL_EQUAL);
+            add_token(TT_EQUAL_EQUAL);
         } else {
-            add_token(TokenType::TT_EQUAL);
+            add_token(TT_EQUAL);
         }
         break;
     case '<':
         if (peek() == '=') {
             advance();
-            add_token(TokenType::TT_LESS_EQUAL);
+            add_token(TT_LESS_EQUAL);
         } else {
-            add_token(TokenType::TT_LESS);
+            add_token(TT_LESS);
         }
         break;
     case '>':
         if (peek() == '=') {
             advance();
-            add_token(TokenType::TT_GREATER_EQUAL);
+            add_token(TT_GREATER_EQUAL);
         } else {
-            add_token(TokenType::TT_GREATER);
+            add_token(TT_GREATER);
         }
         break;
     default:
@@ -193,7 +193,7 @@ void Lexer::string() {
         return;
     }
 
-    add_token(TokenType::TT_STRING, _buffer.substr(_start + 1, _current - _start - 1));
+    add_token(TT_STRING, _buffer.substr(_start + 1, _current - _start - 1));
 
     // The closing "
     advance();
@@ -215,20 +215,20 @@ void Lexer::number() {
             advance();
     }
 
-    add_token(TokenType::TT_NUMBER, _buffer.substr(_start, _current - _start));
+    add_token(TT_NUMBER, _buffer.substr(_start, _current - _start));
 }
 
 void Lexer::identifier() {
     while (peek() == '_' || is_alphanumeric(peek()))
         advance();
 
-    u32 type = (u32)TokenType::TT_IDENTIFIER;
+    u32 type = TT_IDENTIFIER;
 
     std::string name = _buffer.substr(_start, _current - _start);
 
-    for (u32 i = 0; i < (u32)TokenType::TT_RESERVED_COUNT; i++) {
+    for (u32 i = 0; i < TT_RESERVED_COUNT; i++) {
         if (name == Token::reserved_keywords[i]) {
-            type = i + (u32)TokenType::TT_RESERVED_BEGIN;
+            type = i + TT_RESERVED_BEGIN;
             break;
         }
     }
