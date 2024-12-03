@@ -1,24 +1,18 @@
-#include "script/lexer.hpp"
 #include "script/parser.hpp"
-#include "script/ast/printer.hpp"
+#include "script/ast/ast_printer.hpp"
 
 #include <fstream>
 #include <iostream>
 
 static void process_buffer(const std::string& buffer) {
-    Lexer lexer(buffer);
-    lexer.tokenize();
+    Parser parser(buffer);
 
-    // TODO: catch lexer errors
-
-    Parser parser(lexer.tokens());
     Node::ptr root = parser.parse();
 
-    if (parser.error()) {
+    if (parser.error())
         return;
-    }
 
-    Printer p;
+    ASTPrinter p;
     p.print(root.get());
 }
 

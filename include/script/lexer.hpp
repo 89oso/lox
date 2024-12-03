@@ -2,19 +2,19 @@
 
 #include "token.hpp"
 #include <string>
-#include <vector>
 
 class Lexer {
 public:
+    using ptr = std::unique_ptr<Lexer>;
+
     Lexer(const std::string& buffer);
 
-    void tokenize();
-    std::vector<Token>& tokens();
+    void print();
+    Token next();
 
 private:
     std::string _buffer;
     usize _buffer_size;
-    std::vector<Token> _tokens;
 
     bool _error;
     u32 _start;
@@ -22,11 +22,7 @@ private:
     u32 _line;
     u32 _column;
 
-    void add_token(TokenType type);
-    void add_token(TokenType type, std::string value);
     void error(const std::string& msg);
-    void print_tokens();
-    void scan();
 
     bool is_digit(char c) const;
     bool is_alpha(char c) const;
@@ -37,7 +33,7 @@ private:
     char peek();
     char peek_next();
 
-    void string();
-    void number();
-    void identifier();
+    Token string();
+    Token number();
+    Token identifier();
 };

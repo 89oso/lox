@@ -3,9 +3,10 @@
 #include "expr.hpp"
 #include <iostream>
 
-struct Printer : public Visitor {
+struct ASTPrinter : public Visitor {
     void print(Node* node) {
         node->accept(this);
+        std::cout << "\n";
     }
 
     void visit(UnaryExpr* node) override {

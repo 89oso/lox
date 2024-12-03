@@ -1,16 +1,20 @@
 #include "script/parser.hpp"
+#include "script/ast/expr.hpp"
+
+#include "common/exception.hpp"
 
 #include <iostream>
 
-Parser::Parser(std::vector<Token>& tokens)
-    : _tokens{ tokens },
-      _current{ 0 },
+Parser::Parser(const std::string& buffer)
+    : _previous(TT_INVALID),
       _error{ false } {
+    _lexer = std::make_unique<Lexer>(buffer);
+    _current = _lexer->next();
 }
 
 Node::ptr Parser::parse() {
     try {
-        return expression();
+        return parse_expr();
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';
         return 0;
@@ -21,28 +25,14 @@ bool Parser::error() const {
     return _error;
 }
 
-bool Parser::is_eof() const {
-    return peek().type == TokenType::TT_EOF;
-}
-
 Token Parser::advance() {
-    if (!is_eof())
-        _current++;
-    return previous();
-}
-
-Token Parser::peek() const {
-    return _tokens.at(_current);
-}
-
-Token Parser::previous() {
-    return _tokens.at(_current - 1);
+    _previous = _current;
+    _current = _lexer->next();
+    return _previous;
 }
 
 bool Parser::check(TokenType type) {
-    if (is_eof())
-        return false;
-    return peek().type == type;
+    return _current.type == type;
 }
 
 bool Parser::match(TokenType type) {
@@ -58,7 +48,7 @@ Token Parser::consume(TokenType type, const char* error) {
     if (check(type))
         return advance();
 
-    Parser::throw_error(peek(), error);
+    Parser::throw_error(_current, error);
     return Token();
 }
 
@@ -77,11 +67,11 @@ void Parser::throw_error(Token token, const std::string& error) {
 void Parser::sync() {
     advance();
 
-    while (!is_eof()) {
-        if (previous().type == TokenType::TT_SEMICOLON)
+    while (_current.type != TokenType::TT_EOF) {
+        if (_previous.type == TokenType::TT_SEMICOLON)
             return;
 
-        switch (peek().type) {
+        switch (_current.type) {
         case TokenType::TT_CLASS:
         case TokenType::TT_FUN:
         case TokenType::TT_VAR:
@@ -99,16 +89,17 @@ void Parser::sync() {
     }
 }
 
-Node::ptr Parser::expression() {
-    return equality();
+Node::ptr Parser::parse_expr() {
+    return parse_equality_expr();
 }
 
-Node::ptr Parser::equality() {
-    Node::ptr expr = comparison();
+Node::ptr Parser::parse_equality_expr() {
+    Node::ptr expr = parse_comparison_expr();
 
+    std::cout << "LOOKING FOR EQUALITY TOKEN\n";
     while (matches_any_of(TokenType::TT_BANG_EQUAL, TokenType::TT_EQUAL_EQUAL)) {
-        Token op = previous();
-        Node::ptr right = comparison();
+        Token op = _previous;
+        Node::ptr right = parse_comparison_expr();
 
         expr = std::make_unique<BinaryExpr>(op.type, std::move(expr), std::move(right));
     }
@@ -116,13 +107,13 @@ Node::ptr Parser::equality() {
     return expr;
 }
 
-Node::ptr Parser::comparison() {
-    Node::ptr expr = term();
+Node::ptr Parser::parse_comparison_expr() {
+    Node::ptr expr = parse_term_expr();
 
     while (matches_any_of(
         TokenType::TT_GREATER, TokenType::TT_GREATER_EQUAL, TokenType::TT_LESS, TokenType::TT_LESS_EQUAL)) {
-        Token op = previous();
-        Node::ptr right = term();
+        Token op = _previous;
+        Node::ptr right = parse_term_expr();
 
         expr = std::make_unique<BinaryExpr>(op.type, std::move(expr), std::move(right));
     }
@@ -130,12 +121,12 @@ Node::ptr Parser::comparison() {
     return expr;
 }
 
-Node::ptr Parser::term() {
-    Node::ptr expr = factor();
+Node::ptr Parser::parse_term_expr() {
+    Node::ptr expr = parse_factor_expr();
 
     while (matches_any_of(TokenType::TT_MINUS, TokenType::TT_PLUS)) {
-        Token op = previous();
-        Node::ptr right = factor();
+        Token op = _previous;
+        Node::ptr right = parse_factor_expr();
 
         expr = std::make_unique<BinaryExpr>(op.type, std::move(expr), std::move(right));
     }
@@ -143,12 +134,12 @@ Node::ptr Parser::term() {
     return expr;
 }
 
-Node::ptr Parser::factor() {
-    Node::ptr expr = unary();
+Node::ptr Parser::parse_factor_expr() {
+    Node::ptr expr = parse_unary_expr();
 
     while (matches_any_of(TokenType::TT_SLASH, TokenType::TT_STAR)) {
-        Token op = previous();
-        Node::ptr right = unary();
+        Token op = _previous;
+        Node::ptr right = parse_unary_expr();
 
         expr = std::make_unique<BinaryExpr>(op.type, std::move(expr), std::move(right));
     }
@@ -156,18 +147,18 @@ Node::ptr Parser::factor() {
     return expr;
 }
 
-Node::ptr Parser::unary() {
+Node::ptr Parser::parse_unary_expr() {
     if (matches_any_of(TokenType::TT_BANG, TokenType::TT_MINUS)) {
-        Token op = previous();
-        Node::ptr expr = unary();
+        Token op = _previous;
+        Node::ptr expr = parse_unary_expr();
 
         return std::make_unique<UnaryExpr>(op.type, std::move(expr));
     }
 
-    return primary();
+    return parse_primary_expr();
 }
 
-Node::ptr Parser::primary() {
+Node::ptr Parser::parse_primary_expr() {
     if (match(TokenType::TT_FALSE))
         return std::make_unique<LiteralExpr>("false");
     else if (match(TokenType::TT_TRUE))
@@ -176,16 +167,16 @@ Node::ptr Parser::primary() {
         return std::make_unique<LiteralExpr>("nil");
 
     if (matches_any_of(TokenType::TT_NUMBER, TokenType::TT_STRING)) {
-        Token prev = previous();
+        Token prev = _previous;
         return std::make_unique<LiteralExpr>(prev.value);
     }
 
     if (match(TokenType::TT_LEFT_PAREN)) {
-        Node::ptr expr = expression();
+        Node::ptr expr = parse_expr();
         consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after expression.");
         return std::make_unique<GroupingExpr>(std::move(expr));
     }
 
-    Parser::throw_error(peek(), "Expect expression");
+    Parser::throw_error(_current, "Expect expression");
     return 0;
 }

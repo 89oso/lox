@@ -10,141 +10,99 @@ Lexer::Lexer(const std::string& buffer)
     _buffer_size = buffer.size();
 }
 
-void Lexer::tokenize() {
-    while (!is_eof() && !_error) {
-        _start = _current;
-        scan();
-    }
-
-    Token token(_line, TT_EOF);
-    _tokens.push_back(token);
-
-    print_tokens();
-}
-
-std::vector<Token>& Lexer::tokens() {
-    return _tokens;
-}
-
-void Lexer::add_token(TokenType type) {
-    Token token(_line, type);
-    _tokens.push_back(token);
-}
-
-void Lexer::add_token(TokenType type, std::string value) {
-    Token token(_line, type);
-    token.value = value;
-    _tokens.push_back(token);
-}
-
 void Lexer::error(const std::string& msg) {
-    std::cerr << "ERROR: " << msg << "\n";
     _error = true;
+    std::cerr << "ERROR: " << msg << " at line " << _line << ", col " << _column << "\n";
 }
 
-void Lexer::print_tokens() {
+void Lexer::print() {
     std::cout << "---- tokens ----\n";
-    for (size_t i = 0; i < _tokens.size(); i++) {
-        _tokens.at(i).print();
+
+    Token token = next();
+    while (token.type != TT_EOF && !_error) {
+        token.print();
+        token = next();
     }
+
     std::cout << "----------------\n";
 }
 
-void Lexer::scan() {
-    char c = advance();
+Token Lexer::next() {
+    while (true) {
+        _start = _current;
 
-    switch (c) {
-    case '"':
-        string();
-        break;
-    case ' ':
-    case '\r':
-    case '\t':
-        // Ignore whitespace.
-        break;
-    case '\n':
-        _line++;
-        _column = 0;
-        break;
-    case '/':
-        if (peek() == '/') {
-            while (peek() != '\n' && !is_eof())
+        char c = advance();
+
+        switch (c) {
+        case ' ':
+        case '\r':
+        case '\t':
+            break;
+        case '\n':
+            _line++;
+            _column = 0;
+            break;
+        case '/':
+            if (peek() == '/') {
+                while (peek() != '\n' && !is_eof())
+                    advance();
+            }
+            return Token(TT_SLASH);
+        case '(':
+            return Token(TT_LEFT_PAREN);
+        case ')':
+            return Token(TT_RIGHT_PAREN);
+        case '{':
+            return Token(TT_LEFT_BRACE);
+        case '}':
+            return Token(TT_RIGHT_BRACE);
+        case ',':
+            return Token(TT_COMMA);
+        case '.':
+            return Token(TT_DOT);
+        case '-':
+            return Token(TT_MINUS);
+        case '+':
+            return Token(TT_PLUS);
+        case ';':
+            return Token(TT_SEMICOLON);
+        case '*':
+            return Token(TT_STAR);
+        case '!':
+            if (peek() == '=') {
                 advance();
-        } else {
-            add_token(TT_SLASH);
-        }
-        break;
-    case '(':
-        add_token(TT_LEFT_PAREN);
-        break;
-    case ')':
-        add_token(TT_RIGHT_PAREN);
-        break;
-    case '{':
-        add_token(TT_LEFT_BRACE);
-        break;
-    case '}':
-        add_token(TT_RIGHT_BRACE);
-        break;
-    case ',':
-        add_token(TT_COMMA);
-        break;
-    case '.':
-        add_token(TT_DOT);
-        break;
-    case '-':
-        add_token(TT_MINUS);
-        break;
-    case '+':
-        add_token(TT_PLUS);
-        break;
-    case ';':
-        add_token(TT_SEMICOLON);
-        break;
-    case '*':
-        add_token(TT_STAR);
-        break;
-    case '!':
-        if (peek() == '=') {
-            advance();
-            add_token(TT_BANG_EQUAL);
-        } else {
-            add_token(TT_BANG);
-        }
-        break;
-    case '=':
-        if (peek() == '=') {
-            advance();
-            add_token(TT_EQUAL_EQUAL);
-        } else {
-            add_token(TT_EQUAL);
-        }
-        break;
-    case '<':
-        if (peek() == '=') {
-            advance();
-            add_token(TT_LESS_EQUAL);
-        } else {
-            add_token(TT_LESS);
-        }
-        break;
-    case '>':
-        if (peek() == '=') {
-            advance();
-            add_token(TT_GREATER_EQUAL);
-        } else {
-            add_token(TT_GREATER);
-        }
-        break;
-    default:
-        if (is_digit(c)) {
-            number();
-        } else if (c == '_' || is_alpha(c)) {
-            identifier();
-        } else {
+                return Token(TT_BANG_EQUAL);
+            }
+            return Token(TT_BANG);
+        case '=':
+            if (peek() == '=') {
+                advance();
+                return Token(TT_EQUAL_EQUAL);
+            }
+            return Token(TT_EQUAL);
+        case '<':
+            if (peek() == '=') {
+                advance();
+                return Token(TT_LESS_EQUAL);
+            }
+            return Token(TT_LESS);
+        case '>':
+            if (peek() == '=') {
+                advance();
+                return Token(TT_GREATER_EQUAL);
+            }
+            return Token(TT_GREATER);
+        default:
+            if (c == '\0')
+                return Token(TT_EOF, _line);
+            else if (c == '"')
+                return string();
+            else if (is_digit(c))
+                return number();
+            else if (c == '_' || is_alpha(c))
+                return identifier();
             error("unexpected character: " + std::string(&c, 1));
         }
-        break;
     }
 }
 
@@ -165,9 +123,8 @@ bool Lexer::is_eof() const {
 }
 
 char Lexer::advance() {
-    if (is_eof()) {
+    if (is_eof())
         return '\0';
-    }
     _column++;
     return _buffer.at(_current++);
 }
@@ -184,28 +141,31 @@ char Lexer::peek_next() {
     return _buffer.at(_current + 1);
 }
 
-void Lexer::string() {
+Token Lexer::string() {
     while (peek() != '"' && peek() != '\n' && !is_eof())
         advance();
 
     if (peek() == '\n' || is_eof()) {
         error("unterminated string");
-        return;
+        return Token(TT_INVALID, _line);
     }
 
-    add_token(TT_STRING, _buffer.substr(_start + 1, _current - _start - 1));
+    Token token = Token(TT_STRING, _line, _buffer.substr(_start + 1, _current - _start - 1));
 
-    // The closing "
+    // The closing quote
     advance();
+
+    return token;
 }
 
-void Lexer::number() {
+Token Lexer::number() {
     while (is_digit(peek()))
         advance();
+
     if (peek() == '.') {
         if (!is_digit(peek_next())) {
             error("expected number after decimal point");
-            return;
+            return Token(TT_INVALID);
         }
 
         // consume the '.'
@@ -215,10 +175,10 @@ void Lexer::number() {
             advance();
     }
 
-    add_token(TT_NUMBER, _buffer.substr(_start, _current - _start));
+    return Token(TT_NUMBER, _line, _buffer.substr(_start, _current - _start));
 }
 
-void Lexer::identifier() {
+Token Lexer::identifier() {
     while (peek() == '_' || is_alphanumeric(peek()))
         advance();
 
@@ -233,5 +193,5 @@ void Lexer::identifier() {
         }
     }
 
-    add_token(static_cast<TokenType>(type), name);
+    return Token(static_cast<TokenType>(type), _line, name);
 }

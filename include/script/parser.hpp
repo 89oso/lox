@@ -1,27 +1,22 @@
 #pragma once
 
-#include "token.hpp"
-#include "ast/expr.hpp"
-
-#include <vector>
+#include "lexer.hpp"
+#include "ast/node.hpp"
 
 class Parser {
 public:
-    Parser(std::vector<Token>& tokens);
+    Parser(const std::string& buffer);
 
     Node::ptr parse();
     bool error() const;
 
 private:
-    std::vector<Token> _tokens;
-    u32 _current;
+    Lexer::ptr _lexer;
+    Token _current;
+    Token _previous;
     bool _error;
 
-    bool is_eof() const;
-
     Token advance();
-    Token peek() const;
-    Token previous();
 
     bool check(TokenType type);
     bool match(TokenType type);
@@ -41,11 +36,11 @@ private:
         return false;
     }
 
-    Node::ptr expression();
-    Node::ptr equality();
-    Node::ptr comparison();
-    Node::ptr term();
-    Node::ptr factor();
-    Node::ptr unary();
-    Node::ptr primary();
+    Node::ptr parse_expr();
+    Node::ptr parse_equality_expr();
+    Node::ptr parse_comparison_expr();
+    Node::ptr parse_term_expr();
+    Node::ptr parse_factor_expr();
+    Node::ptr parse_unary_expr();
+    Node::ptr parse_primary_expr();
 };

@@ -7,7 +7,7 @@ const char* Token::reserved_keywords[] = {
 };
 
 Token::Token()
-    : type(TokenType::TT_EOF),
+    : type(TokenType::TT_INVALID),
       line(0) {
 }
 
@@ -16,14 +16,14 @@ Token::Token(TokenType type)
       line(0) {
 }
 
-Token::Token(u32 line, TokenType type)
-    : line(line),
-      type(type) {
+Token::Token(TokenType type, u32 line)
+    : type(type),
+      line(line) {
 }
 
-Token::Token(u32 line, TokenType type, const std::string& value)
-    : line(line),
-      type(type),
+Token::Token(TokenType type, u32 line, const std::string& value)
+    : type(type),
+      line(line),
       value(value) {
 }
 

@@ -62,8 +62,8 @@ enum TokenType : u32 {
 struct Token {
     Token();
     Token(TokenType type);
-    Token(u32 line, TokenType type);
-    Token(u32 line, TokenType type, const std::string& value);
+    Token(TokenType type, u32 line);
+    Token(TokenType type, u32 line, const std::string& value);
 
     TokenType type;
     u32 line;
