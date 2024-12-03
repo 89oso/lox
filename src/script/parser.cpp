@@ -96,7 +96,6 @@ Node::ptr Parser::parse_expr() {
 Node::ptr Parser::parse_equality_expr() {
     Node::ptr expr = parse_comparison_expr();
 
-    std::cout << "LOOKING FOR EQUALITY TOKEN\n";
     while (matches_any_of(TokenType::TT_BANG_EQUAL, TokenType::TT_EQUAL_EQUAL)) {
         Token op = _previous;
         Node::ptr right = parse_comparison_expr();

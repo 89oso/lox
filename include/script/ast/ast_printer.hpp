@@ -13,17 +13,11 @@ struct ASTPrinter : public Visitor {
         std::cout << "(";
 
         switch (node->op) {
-        case TokenType::TT_PLUS:
-            std::cout << "+";
+        case TokenType::TT_BANG:
+            std::cout << "!";
             break;
         case TokenType::TT_MINUS:
             std::cout << "-";
-            break;
-        case TokenType::TT_STAR:
-            std::cout << "*";
-            break;
-        case TokenType::TT_SLASH:
-            std::cout << "/";
             break;
         default:
             break;

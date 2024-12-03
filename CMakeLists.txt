@@ -13,6 +13,7 @@ add_executable(lox
     src/script/lexer.cpp
     src/script/parser.cpp
     src/script/token.cpp
+    src/script/ast/ast_json_dumper.cpp
 )
 
 target_include_directories(lox PRIVATE include/)
