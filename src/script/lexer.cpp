@@ -46,6 +46,7 @@ Token Lexer::next() {
             if (peek() == '/') {
                 while (peek() != '\n' && !is_eof())
                     advance();
+                break;
             }
             return Token(TT_SLASH);
         case '(':
