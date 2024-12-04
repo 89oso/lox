@@ -1,5 +1,5 @@
 #include "script/parser.hpp"
-#include "script/ast/ast_json_dumper.hpp"
+#include "script/ast/json_dumper.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -12,8 +12,8 @@ static void process_buffer(const std::string& buffer) {
     if (parser.error())
         return;
 
-    AstJsonDumper ast_json_dumper;
-    std::cout << ast_json_dumper.dump(root.get());
+    AstJsonDumper json_dumper;
+    std::cout << json_dumper.dump(root.get());
 }
 
 static void process_from_file(const char* path) {

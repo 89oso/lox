@@ -49,5 +49,11 @@ int main(void) {
         printf("x = %d, y = %d, z = %d\n", x, y, z);
     }
 
+    printf("example 3\n");
+    {
+        int value = (5, 1 && 1);
+        printf("%d\n", value);
+    }
+
     return 0;
 }

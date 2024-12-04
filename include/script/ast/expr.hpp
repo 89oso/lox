@@ -75,3 +75,19 @@ struct CommaExpr : Expr {
         visitor->visit(this);
     }
 };
+
+struct LogicalExpr : Expr {
+    TokenType op;
+    Node::ptr left;
+    Node::ptr right;
+
+    explicit LogicalExpr(TokenType op, Node::ptr left, Node::ptr right)
+        : op(op),
+          left(std::move(left)),
+          right(std::move(right)) {
+    }
+
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};

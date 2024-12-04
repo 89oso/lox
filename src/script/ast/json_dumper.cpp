@@ -1,4 +1,4 @@
-#include "script/ast/ast_json_dumper.hpp"
+#include "script/ast/json_dumper.hpp"
 
 AstJsonDumper::AstJsonDumper()
     : indent{ 0 } {
@@ -151,4 +151,26 @@ void AstJsonDumper::visit(CommaExpr* node) {
 
     write_str_field("type", "CommaExpr");
     write_node_array("expressions", node->expressions);
+}
+
+void AstJsonDumper::visit(LogicalExpr* node) {
+    indent++;
+
+    write_str_field("type", "LogicalExpr");
+
+    write("\"operator\": \"", true);
+    switch (node->op) {
+    case TokenType::TT_AND:
+        write("and");
+        break;
+    case TokenType::TT_OR:
+        write("or");
+        break;
+    default:
+        break;
+    }
+    write("\",", false, true);
+
+    write_node("left", node->left.get());
+    write_node("right", node->right.get());
 }

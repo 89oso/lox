@@ -78,7 +78,7 @@ std::string Token::to_string() {
     default:
         if (type >= TokenType::TT_RESERVED_BEGIN && type < TokenType::TT_RESERVED_END)
             return "keyword";
-        // return Token::reserved_keywords[type - TokenType::TT_RESERVED_BEGIN];
+        return Token::reserved_keywords[type - TokenType::TT_RESERVED_BEGIN];
         return "UNKNOWN TOKEN";
     }
 }
