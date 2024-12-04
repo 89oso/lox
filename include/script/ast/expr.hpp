@@ -91,3 +91,20 @@ struct LogicalExpr : Expr {
         visitor->visit(this);
     }
 };
+
+struct ConditionalExpr : Expr {
+    Node::ptr expr;
+    Node::ptr left;
+    Node::ptr right;
+
+    explicit ConditionalExpr(Node::ptr expr, Node::ptr left, Node::ptr right)
+        : expr(std::move(expr)),
+          left(std::move(left)),
+          right(std::move(right)) {
+    }
+
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+

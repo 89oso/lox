@@ -69,6 +69,10 @@ Token Lexer::next() {
             return Token(TT_SEMICOLON);
         case '*':
             return Token(TT_STAR);
+        case ':':
+            return Token(TT_COLON);
+        case '?':
+            return Token(TT_QMARK);
         case '!':
             if (peek() == '=') {
                 advance();

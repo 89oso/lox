@@ -20,6 +20,8 @@ enum TokenType : u32 {
     TT_SEMICOLON,
     TT_SLASH,
     TT_STAR,
+    TT_COLON,
+    TT_QMARK,
 
     // One or two character tokens.
     TT_BANG,

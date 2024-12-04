@@ -22,4 +22,5 @@ struct AstJsonDumper : public Visitor {
     void visit(LiteralExpr* node) override;
     void visit(CommaExpr* node) override;
     void visit(LogicalExpr* node) override;
+    void visit(ConditionalExpr* node) override;
 };

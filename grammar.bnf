@@ -1,7 +1,7 @@
 expr                  ::= comma_expr
-comma_expr            ::= logical_expr (',' expr)? ;
+comma_expr            ::= conditional_expr (',' conditional_expr)* ;
+conditional_expr      ::= logical_expr ('?' expr ':' expr)* ;
 logical_expr          ::= equality_expr ( ("and" equality_expr) | ("or" equality_expr) )* ;
-# conditional_expr      ::= logical_or_expr ('?' expr ':' ternary_expr)* ;
 equality_expr         ::= comparison_expr  ( ( "!=" | "==" ) comparison_expr  )* ;
 comparison_expr       ::= term_expr  ( ( '>' | ">=" | '<' | "<=" ) term_expr  )* ;
 term_expr             ::= factor_expr ( ( '-' | '+' ) factor_expr  )* ;

@@ -51,6 +51,10 @@ std::string Token::to_string() {
         return "/";
     case TokenType::TT_STAR:
         return "*";
+    case TokenType::TT_COLON:
+        return ":";
+    case TokenType::TT_QMARK:
+        return "?";
     case TokenType::TT_BANG:
         return "!";
     case TokenType::TT_BANG_EQUAL:

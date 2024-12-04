@@ -174,3 +174,14 @@ void AstJsonDumper::visit(LogicalExpr* node) {
     write_node("left", node->left.get());
     write_node("right", node->right.get());
 }
+
+void AstJsonDumper::visit(ConditionalExpr* node) {
+    indent++;
+
+    write_str_field("type", "ConditionalExpr");
+
+    write_node("expr", node->expr.get());
+    write_node("left", node->left.get());
+    write_node("right", node->right.get());
+}
+

@@ -42,6 +42,7 @@ private:
 
     Node::ptr parse_expr();
     Node::ptr parse_comma_expr();
+    Node::ptr parse_conditional_expr();
     Node::ptr parse_logical_expr();
     Node::ptr parse_equality_expr();
     Node::ptr parse_comparison_expr();
