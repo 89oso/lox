@@ -1,5 +1,4 @@
 #include "script/parser.hpp"
-#include "script/ast/expr.hpp"
 
 #include "common/exception.hpp"
 
@@ -203,16 +202,24 @@ Node::ptr Parser::parse_unary_expr() {
 }
 
 Node::ptr Parser::parse_primary_expr() {
-    if (match(TokenType::TT_FALSE))
-        return std::make_unique<LiteralExpr>("false");
-    else if (match(TokenType::TT_TRUE))
-        return std::make_unique<LiteralExpr>("true");
-    else if (match(TokenType::TT_NIL))
-        return std::make_unique<LiteralExpr>("nil");
-
-    if (matches_any_of(TokenType::TT_NUMBER, TokenType::TT_STRING)) {
-        Token prev = _previous;
-        return std::make_unique<LiteralExpr>(prev.value);
+    if (match(TokenType::TT_FALSE)) {
+        auto node = std::make_unique<LiteralExpr>(LiteralExpr::Type::Boolean);
+        node->boolean = false;
+        return node;
+    } else if (match(TokenType::TT_TRUE)) {
+        auto node = std::make_unique<LiteralExpr>(LiteralExpr::Type::Boolean);
+        node->boolean = true;
+        return node;
+    } else if (match(TokenType::TT_NIL)) {
+        return std::make_unique<LiteralExpr>(LiteralExpr::Type::Nil);
+    } else if (match(TokenType::TT_NUMBER)) {
+        auto node = std::make_unique<LiteralExpr>(LiteralExpr::Type::Number);
+        node->number = std::stod(_previous.value);
+        return node;
+    } else if (match(TokenType::TT_STRING)) {
+        auto node = std::make_unique<LiteralExpr>(LiteralExpr::Type::String);
+        node->string = _previous.value.data();
+        return node;
     }
 
     if (match(TokenType::TT_LEFT_PAREN)) {

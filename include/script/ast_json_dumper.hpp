@@ -1,6 +1,6 @@
 #pragma once
 
-#include "expr.hpp"
+#include "ast.hpp"
 
 struct AstJsonDumper : public Visitor {
     u32 indent;

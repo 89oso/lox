@@ -1,9 +1,34 @@
 #pragma once
 
-#include "../token.hpp"
-#include "node.hpp"
-
+#include <memory>
 #include <vector>
+
+#include "token.hpp"
+
+struct UnaryExpr;
+struct BinaryExpr;
+struct GroupingExpr;
+struct LiteralExpr;
+struct CommaExpr;
+struct LogicalExpr;
+struct ConditionalExpr;
+
+struct Visitor {
+    virtual void visit(UnaryExpr* node) = 0;
+    virtual void visit(BinaryExpr* node) = 0;
+    virtual void visit(GroupingExpr* node) = 0;
+    virtual void visit(LiteralExpr* node) = 0;
+    virtual void visit(CommaExpr* node) = 0;
+    virtual void visit(LogicalExpr* node) = 0;
+    virtual void visit(ConditionalExpr* node) = 0;
+};
+
+struct Node {
+    using ptr = std::unique_ptr<Node>;
+
+    virtual ~Node() = default;
+    virtual void accept(Visitor* visitor) = 0;
+};
 
 struct Expr : public Node {
     virtual ~Expr() = default;
@@ -53,15 +78,28 @@ struct GroupingExpr : Expr {
 };
 
 struct LiteralExpr : Expr {
-    std::string value;
+    enum Type {
+        Nil,
+        Boolean,
+        Number,
+        String
+    };
 
-    explicit LiteralExpr(std::string value)
-        : value(value) {
+    explicit LiteralExpr(Type type)
+        : type(type) {
     }
 
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
+
+    Type type;
+
+    union {
+        bool boolean;
+        double number;
+        const char* string;
+    };
 };
 
 struct CommaExpr : Expr {
@@ -107,4 +145,3 @@ struct ConditionalExpr : Expr {
         visitor->visit(this);
     }
 };
-

@@ -1,4 +1,4 @@
-#include "script/ast/json_dumper.hpp"
+#include "script/ast_json_dumper.hpp"
 
 AstJsonDumper::AstJsonDumper()
     : indent{ 0 } {
@@ -143,7 +143,8 @@ void AstJsonDumper::visit(LiteralExpr* node) {
     indent++;
 
     write_str_field("type", "LiteralExpr");
-    write_str_field("value", node->value);
+    // TODO
+    // write_str_field("value", node->value);
 }
 
 void AstJsonDumper::visit(CommaExpr* node) {

@@ -1,5 +1,6 @@
 #include "script/parser.hpp"
-#include "script/ast/json_dumper.hpp"
+// #include "script/ast_json_dumper.hpp"
+#include "script/interpreter.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -7,13 +8,22 @@
 static void process_buffer(const std::string& buffer) {
     Parser parser(buffer);
 
+    std::cout << "parsing buffer: " << buffer << "\n";
+
     Node::ptr root = parser.parse();
 
     if (parser.error())
         return;
 
-    AstJsonDumper json_dumper;
-    std::cout << json_dumper.dump(root.get());
+    // AstJsonDumper json_dumper;
+    // std::cout << json_dumper.dump(root.get());
+
+    // TODO: reset lexer parse position
+
+    Interpreter interpreter;
+    root->accept(&interpreter);
+
+    interpreter.print_stack();
 }
 
 static void process_from_file(const char* path) {

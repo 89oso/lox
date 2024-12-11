@@ -1,9 +1,7 @@
 #pragma once
 
 #include "lexer.hpp"
-#include "ast/node.hpp"
-
-#include <vector>
+#include "ast.hpp"
 
 class Parser {
 public:
@@ -37,8 +35,6 @@ private:
 
         return false;
     }
-
-    std::vector<Node::ptr> comma_expressions;
 
     Node::ptr parse_expr();
     Node::ptr parse_comma_expr();
