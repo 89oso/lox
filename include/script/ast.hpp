@@ -13,7 +13,8 @@ struct CommaExpr;
 struct LogicalExpr;
 struct ConditionalExpr;
 
-struct Visitor {
+class Visitor {
+public:
     virtual void visit(UnaryExpr* node) = 0;
     virtual void visit(BinaryExpr* node) = 0;
     virtual void visit(GroupingExpr* node) = 0;
@@ -67,10 +68,16 @@ struct LiteralExpr : Expr {
 
     Type type;
 
-    union {
+    union Value {
         bool boolean;
         double number;
-        const char* string;
+        std::string string;
+
+        Value() {
+        }
+
+        ~Value() {
+        }
     } value;
 };
 

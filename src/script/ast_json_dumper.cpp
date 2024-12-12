@@ -31,6 +31,13 @@ void AstJsonDumper::write_int_field(const std::string& field, const i32 value) {
     write(",", false, true);
 }
 
+void AstJsonDumper::write_double_field(const std::string& field, const f64 value) {
+    write("\"" + field + "\"", true);
+    write(": ");
+    write("\"" + std::to_string(value) + "\"", false);
+    write(",", false, true);
+}
+
 void AstJsonDumper::write_node(const std::string& name, Node* node) {
     write("\"" + name + "\"", true);
     write(": {", false, true);
@@ -143,8 +150,19 @@ void AstJsonDumper::visit(LiteralExpr* node) {
     indent++;
 
     write_str_field("type", "LiteralExpr");
-    // TODO
-    // write_str_field("value", node->value);
+
+    if (node->type == LiteralExpr::Type::Nil) {
+        write_str_field("variable_type", "nil");
+    } else if (node->type == LiteralExpr::Type::Boolean) {
+        write_str_field("variable_type", "boolean");
+        write_str_field("variable_value", node->value.boolean ? "true" : "false");
+    } else if (node->type == LiteralExpr::Type::Number) {
+        write_str_field("variable_type", "number");
+        write_double_field("variable_value", node->value.number);
+    } else if (node->type == LiteralExpr::Type::String) {
+        write_str_field("variable_type", "string");
+        write_str_field("variable_value", node->value.string);
+    }
 }
 
 void AstJsonDumper::visit(CommaExpr* node) {
@@ -185,4 +203,3 @@ void AstJsonDumper::visit(ConditionalExpr* node) {
     write_node("left", node->left.get());
     write_node("right", node->right.get());
 }
-

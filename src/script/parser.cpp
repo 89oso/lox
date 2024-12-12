@@ -218,7 +218,7 @@ Node::ptr Parser::parse_primary_expr() {
         return node;
     } else if (match(TokenType::TT_STRING)) {
         auto node = std::make_unique<LiteralExpr>(LiteralExpr::Type::String);
-        node->value.string = _previous.value.data();
+        node->value.string = _previous.value;
         return node;
     }
 

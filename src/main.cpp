@@ -1,53 +1,50 @@
 #include "script/parser.hpp"
-// #include "script/ast_json_dumper.hpp"
+#include "script/ast_json_dumper.hpp"
 #include "script/interpreter.hpp"
 
 #include <fstream>
 #include <iostream>
 
-static void process_buffer(const std::string& buffer) {
-    Parser parser(buffer);
-
-    std::cout << "parsing buffer: " << buffer << "\n";
-
-    Node::ptr root = parser.parse();
-
-    if (parser.error())
-        return;
-
-    // AstJsonDumper json_dumper;
-    // std::cout << json_dumper.dump(root.get());
-
-    // TODO: reset lexer parse position
-
+namespace {
     Interpreter interpreter;
-    root->accept(&interpreter);
 
-    interpreter.print_stack();
-}
+    void process_buffer(const std::string& buffer) {
+        Parser parser(buffer);
 
-static void process_from_file(const char* path) {
-    std::ifstream file(path, std::ios::ate | std::ios::binary);
+        Node::ptr root = parser.parse();
 
-    if (!file.is_open()) {
-        std::cerr << "Failed to open script: " << path << "\n";
-        return;
+        if (parser.error())
+            return;
+
+        AstJsonDumper json_dumper;
+        std::cout << json_dumper.dump(root.get());
+
+        interpreter.interpret(root.get());
     }
 
-    size_t size = file.tellg();
-    file.seekg(0, std::ios::beg);
+    void process_from_file(const char* path) {
+        std::ifstream file(path, std::ios::ate | std::ios::binary);
 
-    std::string buffer;
-    if (size > 0) {
-        buffer.resize(size);
-        file.read(const_cast<char*>(buffer.data()), size);
+        if (!file.is_open()) {
+            std::cerr << "Failed to open script: " << path << "\n";
+            return;
+        }
+
+        size_t size = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        std::string buffer;
+        if (size > 0) {
+            buffer.resize(size);
+            file.read(const_cast<char*>(buffer.data()), size);
+        }
+
+        file.close();
+
+        std::cout << "Processing script: " << path << "\n";
+        process_buffer(buffer);
     }
-
-    file.close();
-
-    std::cout << "Processing script: " << path << "\n";
-    process_buffer(buffer);
-}
+} // namespace
 
 int main(int argc, char** argv) {
     if (argc > 2) {
@@ -57,9 +54,9 @@ int main(int argc, char** argv) {
 
     if (argc == 1) {
         std::string line;
-        std::getline(std::cin, line);
-
-        process_buffer(line);
+        while (std::getline(std::cin, line)) {
+            process_buffer(line);
+        }
     } else {
         process_from_file(argv[1]);
     }
