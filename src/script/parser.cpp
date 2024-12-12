@@ -204,21 +204,21 @@ Node::ptr Parser::parse_unary_expr() {
 Node::ptr Parser::parse_primary_expr() {
     if (match(TokenType::TT_FALSE)) {
         auto node = std::make_unique<LiteralExpr>(LiteralExpr::Type::Boolean);
-        node->boolean = false;
+        node->value.boolean = false;
         return node;
     } else if (match(TokenType::TT_TRUE)) {
         auto node = std::make_unique<LiteralExpr>(LiteralExpr::Type::Boolean);
-        node->boolean = true;
+        node->value.boolean = true;
         return node;
     } else if (match(TokenType::TT_NIL)) {
         return std::make_unique<LiteralExpr>(LiteralExpr::Type::Nil);
     } else if (match(TokenType::TT_NUMBER)) {
         auto node = std::make_unique<LiteralExpr>(LiteralExpr::Type::Number);
-        node->number = std::stod(_previous.value);
+        node->value.number = std::stod(_previous.value);
         return node;
     } else if (match(TokenType::TT_STRING)) {
         auto node = std::make_unique<LiteralExpr>(LiteralExpr::Type::String);
-        node->string = _previous.value.data();
+        node->value.string = _previous.value.data();
         return node;
     }
 

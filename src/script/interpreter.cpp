@@ -49,13 +49,13 @@ void Interpreter::visit(LiteralExpr* node) {
         variable.type = ScriptVariableType::Nil;
     } else if (node->type == LiteralExpr::Type::Boolean) {
         variable.type = ScriptVariableType::Boolean;
-        variable.value.boolean = node->boolean;
+        variable.value.boolean = node->value.boolean;
     } else if (node->type == LiteralExpr::Type::Number) {
         variable.type = ScriptVariableType::Number;
-        variable.value.number = node->number;
+        variable.value.number = node->value.number;
     } else if (node->type == LiteralExpr::Type::String) {
         variable.type = ScriptVariableType::String;
-        variable.value.string = node->string;
+        variable.value.string = node->value.string;
     }
 
     variable_stack.push_back(variable);

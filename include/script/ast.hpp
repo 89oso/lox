@@ -36,62 +36,34 @@ struct Expr : public Node {
 };
 
 struct UnaryExpr : Expr {
+    explicit UnaryExpr(TokenType op, Node::ptr expr);
+    void accept(Visitor* visitor) override;
+
     TokenType op;
     Node::ptr expr;
-
-    explicit UnaryExpr(TokenType op, Node::ptr expr)
-        : op(op),
-          expr(std::move(expr)) {
-    }
-
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
 };
 
 struct BinaryExpr : Expr {
+    explicit BinaryExpr(TokenType op, Node::ptr left, Node::ptr right);
+    void accept(Visitor* visitor) override;
+
     TokenType op;
     Node::ptr left;
     Node::ptr right;
-
-    explicit BinaryExpr(TokenType op, Node::ptr left, Node::ptr right)
-        : op(op),
-          left(std::move(left)),
-          right(std::move(right)) {
-    }
-
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
 };
 
 struct GroupingExpr : Expr {
+    explicit GroupingExpr(Node::ptr expr);
+    void accept(Visitor* visitor) override;
+
     Node::ptr expr;
-
-    explicit GroupingExpr(Node::ptr expr)
-        : expr(std::move(expr)) {
-    }
-
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
 };
 
 struct LiteralExpr : Expr {
-    enum Type {
-        Nil,
-        Boolean,
-        Number,
-        String
-    };
+    enum class Type { Nil, Boolean, Number, String };
 
-    explicit LiteralExpr(Type type)
-        : type(type) {
-    }
-
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
+    explicit LiteralExpr(Type type);
+    void accept(Visitor* visitor) override;
 
     Type type;
 
@@ -99,49 +71,30 @@ struct LiteralExpr : Expr {
         bool boolean;
         double number;
         const char* string;
-    };
+    } value;
 };
 
 struct CommaExpr : Expr {
+    explicit CommaExpr(std::vector<Node::ptr> expressions);
+    void accept(Visitor* visitor) override;
+
     std::vector<Node::ptr> expressions;
-
-    explicit CommaExpr(std::vector<Node::ptr> expressions)
-        : expressions(std::move(expressions)) {
-    }
-
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
 };
 
 struct LogicalExpr : Expr {
+    explicit LogicalExpr(TokenType op, Node::ptr left, Node::ptr right);
+    void accept(Visitor* visitor) override;
+
     TokenType op;
     Node::ptr left;
     Node::ptr right;
-
-    explicit LogicalExpr(TokenType op, Node::ptr left, Node::ptr right)
-        : op(op),
-          left(std::move(left)),
-          right(std::move(right)) {
-    }
-
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
 };
 
 struct ConditionalExpr : Expr {
+    explicit ConditionalExpr(Node::ptr expr, Node::ptr left, Node::ptr right);
+    void accept(Visitor* visitor) override;
+
     Node::ptr expr;
     Node::ptr left;
     Node::ptr right;
-
-    explicit ConditionalExpr(Node::ptr expr, Node::ptr left, Node::ptr right)
-        : expr(std::move(expr)),
-          left(std::move(left)),
-          right(std::move(right)) {
-    }
-
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
 };

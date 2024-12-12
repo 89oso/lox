@@ -10,6 +10,7 @@ add_executable(lox
     src/main.cpp
     src/common/memory/arena.cpp
     src/common/utils.cpp
+    src/script/ast.cpp
     src/script/ast_json_dumper.cpp
     src/script/interpreter.cpp
     src/script/lexer.cpp
