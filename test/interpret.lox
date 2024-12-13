@@ -3,8 +3,9 @@
 // string concat. works
 // "hello" + ", world from lox"
 
-// string concat. works if a number is on the right-hand side of the binary expression
+// string concat. works if a number is on the either side of the binary expression
 // "the answer is " + 42
+// 42 + " is the answer"
 
 // 2 * 5 + 2
 

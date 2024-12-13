@@ -6,7 +6,7 @@ UnaryExpr::UnaryExpr(TokenType op, Node::ptr expr)
 }
 
 void UnaryExpr::accept(Visitor* visitor) {
-    visitor->visit(this);
+    visitor->visit_unary_expr(this);
 }
 
 BinaryExpr::BinaryExpr(TokenType op, Node::ptr left, Node::ptr right)
@@ -16,7 +16,7 @@ BinaryExpr::BinaryExpr(TokenType op, Node::ptr left, Node::ptr right)
 }
 
 void BinaryExpr::accept(Visitor* visitor) {
-    visitor->visit(this);
+    visitor->visit_binary_expr(this);
 }
 
 GroupingExpr::GroupingExpr(Node::ptr expr)
@@ -24,7 +24,7 @@ GroupingExpr::GroupingExpr(Node::ptr expr)
 }
 
 void GroupingExpr::accept(Visitor* visitor) {
-    visitor->visit(this);
+    visitor->visit_grouping_expr(this);
 }
 
 LiteralExpr::LiteralExpr(Type type)
@@ -32,7 +32,7 @@ LiteralExpr::LiteralExpr(Type type)
 }
 
 void LiteralExpr::accept(Visitor* visitor) {
-    visitor->visit(this);
+    visitor->visit_literal_expr(this);
 }
 
 CommaExpr::CommaExpr(std::vector<Node::ptr> expressions)
@@ -40,7 +40,7 @@ CommaExpr::CommaExpr(std::vector<Node::ptr> expressions)
 }
 
 void CommaExpr::accept(Visitor* visitor) {
-    visitor->visit(this);
+    visitor->visit_comma_expr(this);
 }
 
 LogicalExpr::LogicalExpr(TokenType op, Node::ptr left, Node::ptr right)
@@ -50,7 +50,7 @@ LogicalExpr::LogicalExpr(TokenType op, Node::ptr left, Node::ptr right)
 }
 
 void LogicalExpr::accept(Visitor* visitor) {
-    visitor->visit(this);
+    visitor->visit_logical_expr(this);
 }
 
 ConditionalExpr::ConditionalExpr(Node::ptr expr, Node::ptr left, Node::ptr right)
@@ -60,5 +60,5 @@ ConditionalExpr::ConditionalExpr(Node::ptr expr, Node::ptr left, Node::ptr right
 }
 
 void ConditionalExpr::accept(Visitor* visitor) {
-    visitor->visit(this);
+    visitor->visit_conditional_expr(this);
 }

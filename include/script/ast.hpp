@@ -15,13 +15,13 @@ struct ConditionalExpr;
 
 class Visitor {
 public:
-    virtual void visit(UnaryExpr* node) = 0;
-    virtual void visit(BinaryExpr* node) = 0;
-    virtual void visit(GroupingExpr* node) = 0;
-    virtual void visit(LiteralExpr* node) = 0;
-    virtual void visit(CommaExpr* node) = 0;
-    virtual void visit(LogicalExpr* node) = 0;
-    virtual void visit(ConditionalExpr* node) = 0;
+    virtual void visit_unary_expr(UnaryExpr* node) = 0;
+    virtual void visit_binary_expr(BinaryExpr* node) = 0;
+    virtual void visit_grouping_expr(GroupingExpr* node) = 0;
+    virtual void visit_literal_expr(LiteralExpr* node) = 0;
+    virtual void visit_comma_expr(CommaExpr* node) = 0;
+    virtual void visit_logical_expr(LogicalExpr* node) = 0;
+    virtual void visit_conditional_expr(ConditionalExpr* node) = 0;
 };
 
 struct Node {

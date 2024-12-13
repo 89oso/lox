@@ -84,7 +84,7 @@ std::string AstJsonDumper::dump(Node* node) {
     return buffer;
 }
 
-void AstJsonDumper::visit(UnaryExpr* node) {
+void AstJsonDumper::visit_unary_expr(UnaryExpr* node) {
     indent++;
 
     write_str_field("type", "UnaryExpr");
@@ -105,7 +105,7 @@ void AstJsonDumper::visit(UnaryExpr* node) {
     write_node("expression", node->expr.get());
 }
 
-void AstJsonDumper::visit(BinaryExpr* node) {
+void AstJsonDumper::visit_binary_expr(BinaryExpr* node) {
     indent++;
 
     write_str_field("type", "BinaryExpr");
@@ -139,14 +139,14 @@ void AstJsonDumper::visit(BinaryExpr* node) {
     write_node("right", node->right.get());
 }
 
-void AstJsonDumper::visit(GroupingExpr* node) {
+void AstJsonDumper::visit_grouping_expr(GroupingExpr* node) {
     indent++;
 
     write_str_field("type", "GroupingExpr");
     write_node("expression", node->expr.get());
 }
 
-void AstJsonDumper::visit(LiteralExpr* node) {
+void AstJsonDumper::visit_literal_expr(LiteralExpr* node) {
     indent++;
 
     write_str_field("type", "LiteralExpr");
@@ -165,14 +165,14 @@ void AstJsonDumper::visit(LiteralExpr* node) {
     }
 }
 
-void AstJsonDumper::visit(CommaExpr* node) {
+void AstJsonDumper::visit_comma_expr(CommaExpr* node) {
     indent++;
 
     write_str_field("type", "CommaExpr");
     write_node_array("expressions", node->expressions);
 }
 
-void AstJsonDumper::visit(LogicalExpr* node) {
+void AstJsonDumper::visit_logical_expr(LogicalExpr* node) {
     indent++;
 
     write_str_field("type", "LogicalExpr");
@@ -194,7 +194,7 @@ void AstJsonDumper::visit(LogicalExpr* node) {
     write_node("right", node->right.get());
 }
 
-void AstJsonDumper::visit(ConditionalExpr* node) {
+void AstJsonDumper::visit_conditional_expr(ConditionalExpr* node) {
     indent++;
 
     write_str_field("type", "ConditionalExpr");

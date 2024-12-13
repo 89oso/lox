@@ -16,7 +16,7 @@ void Interpreter::interpret(Node* node) {
     }
 }
 
-void Interpreter::visit(UnaryExpr* node) {
+void Interpreter::visit_unary_expr(UnaryExpr* node) {
     // evaluate the sub-expression first
     node->expr->accept(this);
 
@@ -30,7 +30,7 @@ void Interpreter::visit(UnaryExpr* node) {
     }
 }
 
-void Interpreter::visit(BinaryExpr* node) {
+void Interpreter::visit_binary_expr(BinaryExpr* node) {
     node->left->accept(this);
     auto& left = variable_stack.back();
 
@@ -39,27 +39,28 @@ void Interpreter::visit(BinaryExpr* node) {
 
     ScriptVariable variable;
 
+    // TODO: std::to_string on doubles leads to multiple trailing zeros, which results in ugly output
+    //     : maybe use fmtlib (std::format is weird on my mac)
     switch (node->op) {
     case TokenType::TT_PLUS: {
         if (left.type == ScriptVariableType::Number) {
-            if (right.type != ScriptVariableType::Number) {
-                throw RuntimeError(node->op, "rhs of number addition must be a number");
-                return;
+            if (right.type == ScriptVariableType::String) {
+                variable.type = ScriptVariableType::String;
+                variable.value.string = std::to_string(left.value.number) + right.value.string;
+                break;
             }
-
+            assert_variable_type(node->op, ScriptVariableType::Number, right);
             variable.type = ScriptVariableType::Number;
             variable.value.number = left.value.number + right.value.number;
         } else if (left.type == ScriptVariableType::String) {
-            if (right.type != ScriptVariableType::Number && right.type != ScriptVariableType::String) {
-                throw RuntimeError(node->op, "rhs of string concatenation must be a number or a string");
-                return;
+            if (right.type == ScriptVariableType::Number) {
+                variable.type = ScriptVariableType::String;
+                variable.value.string = left.value.string + std::to_string(right.value.number);
+                break;
             }
-
-            std::string rhs_string =
-                right.type == ScriptVariableType::Number ? std::to_string(right.value.number) : right.value.string;
-
+            assert_variable_type(node->op, ScriptVariableType::String, right);
             variable.type = ScriptVariableType::String;
-            variable.value.string = left.value.string + rhs_string;
+            variable.value.string = left.value.string + right.value.string;
         } else {
             throw RuntimeError(node->op, "only numbers and strings are allowed for binary expressions");
             return;
@@ -77,6 +78,10 @@ void Interpreter::visit(BinaryExpr* node) {
         break;
     case TokenType::TT_SLASH:
         assert_variables_type(node->op, ScriptVariableType::Number, left, right);
+        if (left.value.number == 0.0 || right.value.number == 0.0) {
+            throw RuntimeError(node->op, "division by zero is not allowed");
+            return;
+        }
         variable.type = ScriptVariableType::Number;
         variable.value.number = left.value.number / right.value.number;
         break;
@@ -120,14 +125,14 @@ void Interpreter::visit(BinaryExpr* node) {
     left = variable;
 }
 
-void Interpreter::visit(GroupingExpr* node) {
+void Interpreter::visit_grouping_expr(GroupingExpr* node) {
     // maybe assert the stack size stays the same?
     node->expr->accept(this);
 }
 
 // TODO: strings currently come from the token created by the lexer (std::string)
 //     : maybe an arena for the whole AST would be a good idea?
-void Interpreter::visit(LiteralExpr* node) {
+void Interpreter::visit_literal_expr(LiteralExpr* node) {
     ScriptVariable variable;
 
     if (node->type == LiteralExpr::Type::Nil) {
@@ -146,15 +151,15 @@ void Interpreter::visit(LiteralExpr* node) {
     variable_stack.push_back(variable);
 }
 
-void Interpreter::visit(CommaExpr* node) {
+void Interpreter::visit_comma_expr(CommaExpr* node) {
     // TODO
 }
 
-void Interpreter::visit(LogicalExpr* node) {
+void Interpreter::visit_logical_expr(LogicalExpr* node) {
     // TODO
 }
 
-void Interpreter::visit(ConditionalExpr* node) {
+void Interpreter::visit_conditional_expr(ConditionalExpr* node) {
     // TODO
 }
 

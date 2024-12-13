@@ -7,13 +7,13 @@ class Interpreter : public Visitor {
 public:
     Interpreter();
 
-    void visit(UnaryExpr* node) override;
-    void visit(BinaryExpr* node) override;
-    void visit(GroupingExpr* node) override;
-    void visit(LiteralExpr* node) override;
-    void visit(CommaExpr* node) override;
-    void visit(LogicalExpr* node) override;
-    void visit(ConditionalExpr* node) override;
+    void visit_unary_expr(UnaryExpr* node) override;
+    void visit_binary_expr(BinaryExpr* node) override;
+    void visit_grouping_expr(GroupingExpr* node) override;
+    void visit_literal_expr(LiteralExpr* node) override;
+    void visit_comma_expr(CommaExpr* node) override;
+    void visit_logical_expr(LogicalExpr* node) override;
+    void visit_conditional_expr(ConditionalExpr* node) override;
 
     void interpret(Node* node);
 
