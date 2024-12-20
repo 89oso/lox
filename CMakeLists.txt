@@ -12,10 +12,10 @@ add_executable(lox
     src/common/utils.cpp
     src/script/ast.cpp
     src/script/ast_json_dumper.cpp
+    src/script/environment.cpp
     src/script/interpreter.cpp
     src/script/lexer.cpp
     src/script/parser.cpp
-    src/script/script_variable.cpp
     src/script/token.cpp
 )
 

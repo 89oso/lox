@@ -72,17 +72,17 @@ std::string Token::to_string() {
     case TokenType::TT_LESS_EQUAL:
         return "<=";
     case TokenType::TT_IDENTIFIER:
-        return "identifier";
+        return value;
     case TokenType::TT_STRING:
-        return "string";
+        return value;
     case TokenType::TT_NUMBER:
-        return "number";
+        return std::format("{}", value);
     case TokenType::TT_EOF:
         return "<EOF>";
     default:
         if (type >= TokenType::TT_RESERVED_BEGIN && type < TokenType::TT_RESERVED_END)
-            return "keyword";
-        return Token::reserved_keywords[type - TokenType::TT_RESERVED_BEGIN];
+            return Token::reserved_keywords[type - TokenType::TT_RESERVED_BEGIN];
+        return "<UNKNOWN>";
     }
 }
 

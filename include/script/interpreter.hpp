@@ -1,11 +1,17 @@
 #pragma once
 
 #include "ast.hpp"
-#include "script_variable.hpp"
+#include "environment.hpp"
 
 class Interpreter : public Visitor {
 public:
     Interpreter();
+
+    void interpret(Node* node);
+
+    void visit_print_stmt(PrintStmt* stmt) override;
+    void visit_expr_stmt(ExprStmt* stmt) override;
+    void visit_var_stmt(VarStmt* stmt) override;
 
     void visit_unary_expr(UnaryExpr* node) override;
     void visit_binary_expr(BinaryExpr* node) override;
@@ -14,17 +20,18 @@ public:
     void visit_comma_expr(CommaExpr* node) override;
     void visit_logical_expr(LogicalExpr* node) override;
     void visit_conditional_expr(ConditionalExpr* node) override;
-
-    void interpret(Node* node);
+    void visit_variable_expr(VariableExpr* node) override;
+    void visit_assignment_expr(AssignmentExpr* node) override;
 
 private:
-    std::vector<ScriptVariable> variable_stack;
+    std::vector<ScriptValue> value_stack;
+    ScriptEnvironment environment;
 
     void print_stack();
 
-    bool is_true(ScriptVariable& variable);
-    bool is_equal(ScriptVariable& a, ScriptVariable& b);
+    bool is_true(ScriptValue& value);
+    bool is_equal(ScriptValue& a, ScriptValue& b);
 
-    void assert_variable_type(Token op, ScriptVariableType type, ScriptVariable& variable);
-    void assert_variables_type(Token op, ScriptVariableType type, ScriptVariable& a, ScriptVariable& b);
+    void assert_value_type(Token op, ScriptValueType type, ScriptValue& value);
+    void assert_values_type(Token op, ScriptValueType type, ScriptValue& a, ScriptValue& b);
 };

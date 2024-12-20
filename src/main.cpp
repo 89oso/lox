@@ -11,15 +11,17 @@ namespace {
     void process_buffer(const std::string& buffer) {
         Parser parser(buffer);
 
-        Node::ptr root = parser.parse();
+        std::vector<Stmt::ptr>& statements = parser.parse();
 
         if (parser.error())
             return;
 
-        AstJsonDumper json_dumper;
-        std::cout << json_dumper.dump(root.get());
+        for (auto& stmt : statements) {
+            AstJsonDumper json_dumper;
+            json_dumper.dump(stmt.get());
 
-        interpreter.interpret(root.get());
+            interpreter.interpret(stmt.get());
+        }
     }
 
     void process_from_file(const char* path) {

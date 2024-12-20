@@ -7,7 +7,7 @@ class Parser {
 public:
     Parser(const std::string& buffer);
 
-    Node::ptr parse();
+    std::vector<Stmt::ptr>& parse();
     bool error() const;
 
 private:
@@ -15,6 +15,7 @@ private:
     Token _current;
     Token _previous;
     bool _error;
+    std::vector<Stmt::ptr> _statements;
 
     Token advance();
 
@@ -36,7 +37,15 @@ private:
         return false;
     }
 
+    Stmt::ptr parse_decl();
+    Stmt::ptr parse_var_decl();
+
+    Stmt::ptr parse_stmt();
+    Stmt::ptr parse_print_stmt();
+    Stmt::ptr parse_expr_stmt();
+
     Node::ptr parse_expr();
+    Node::ptr parse_assignment_expr();
     Node::ptr parse_comma_expr();
     Node::ptr parse_conditional_expr();
     Node::ptr parse_logical_expr();

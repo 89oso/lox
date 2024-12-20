@@ -62,12 +62,19 @@ enum TokenType : u32 {
 };
 
 struct Token {
-    Token();
-    Token(TokenType type);
-    Token(TokenType type, u32 line);
-    Token(TokenType type, u32 line, const std::string& value);
+    explicit Token();
+    explicit Token(TokenType type);
+    explicit Token(TokenType type, u32 line);
+    explicit Token(TokenType type, u32 line, const std::string& value);
 
-    TokenType type;
+    Token& operator=(const Token& rhs) {
+        type = rhs.type;
+        line = rhs.line;
+        value = rhs.value;
+        return *this;
+    }
+
+    u32 type;
     u32 line;
     std::string value;
 

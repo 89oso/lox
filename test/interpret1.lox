@@ -1,0 +1,13 @@
+print 42 / 2 + 6;
+print 2 * 5 + 2;
+print 45 * 44 / 5 + 9;
+
+// division by zero is a runtime error
+(0 / 0) == (0 / 0);
+
+// string concat. works
+print "hello" + ", world from lox";
+
+// string concat. with numbers too
+print "the answer is " + 42;
+print 42 + " is the answer";

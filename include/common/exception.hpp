@@ -16,6 +16,7 @@ public:
     }
 
 private:
+    i32 _line;
     std::string _message;
 };
 
@@ -24,6 +25,10 @@ public:
     RuntimeError(Token token, const std::string& message)
         : _token(token),
           _message(message) {
+    }
+
+    const Token& token() {
+        return _token;
     }
 
     const char* what() const noexcept override {
