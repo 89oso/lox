@@ -122,3 +122,12 @@ IfStmt::IfStmt(Expr::ptr condition, Stmt::ptr then_branch, Stmt::ptr else_branch
 void IfStmt::accept(Visitor* visitor) {
     visitor->visit_if_stmt(this);
 }
+
+WhileStmt::WhileStmt(Expr::ptr condition, Stmt::ptr body)
+    : condition(std::move(condition)),
+      body(std::move(body)) {
+}
+
+void WhileStmt::accept(Visitor* visitor) {
+    visitor->visit_while_stmt(this);
+}

@@ -14,6 +14,7 @@ public:
     void visit_var_stmt(VarStmt* stmt) override;
     void visit_block_stmt(BlockStmt* stmt) override;
     void visit_if_stmt(IfStmt* stmt) override;
+    void visit_while_stmt(WhileStmt* stmt) override;
 
     void visit_unary_expr(UnaryExpr* node) override;
     void visit_binary_expr(BinaryExpr* node) override;
@@ -29,13 +30,17 @@ private:
     ScriptEnvironment _global_env;
     ScriptEnvironment* _current_env;
 
-    std::vector<ScriptValue> _value_stack;
+    // value from latest evaluated expression
+    ScriptValue _expr_value;
 
-    void print_stack();
     void execute_block(std::vector<Node::ptr>& statements, std::unique_ptr<ScriptEnvironment> environment);
 
-    bool is_true(ScriptValue& value);
-    bool is_equal(ScriptValue& a, ScriptValue& b);
+    // TODO: change places that use Node for type when Expr should be explicitly stated
+    ScriptValue& evaluate(Node* expr);
+    void execute(Stmt* stmt);
+
+    bool is_true(ScriptValue value);
+    bool is_equal(ScriptValue a, ScriptValue b);
 
     void assert_value_type(Token op, ScriptValueType type, ScriptValue& value);
     void assert_values_type(Token op, ScriptValueType type, ScriptValue& a, ScriptValue& b);

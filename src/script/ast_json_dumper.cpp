@@ -60,6 +60,14 @@ void AstJsonDumper::visit_if_stmt(IfStmt* stmt) {
     write_node("else_branch", stmt->else_branch.get());
 }
 
+void AstJsonDumper::visit_while_stmt(WhileStmt* stmt) {
+    indent++;
+
+    write_str_field("type", "WhileStmt");
+    write_node("condition", stmt->condition.get());
+    write_node("body", stmt->body.get());
+}
+
 void AstJsonDumper::visit_unary_expr(UnaryExpr* node) {
     indent++;
 
@@ -99,6 +107,18 @@ void AstJsonDumper::visit_binary_expr(BinaryExpr* node) {
         break;
     case TokenType::TT_SLASH:
         write("/");
+        break;
+    case TokenType::TT_GREATER:
+        write(">");
+        break;
+    case TokenType::TT_GREATER_EQUAL:
+        write(">=");
+        break;
+    case TokenType::TT_LESS:
+        write("<");
+        break;
+    case TokenType::TT_LESS_EQUAL:
+        write("<=");
         break;
     case TokenType::TT_EQUAL_EQUAL:
         write("==");

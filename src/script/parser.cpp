@@ -122,6 +122,8 @@ Stmt::ptr Parser::parse_stmt() {
         return std::make_unique<BlockStmt>(parse_block());
     else if (match(TokenType::TT_IF))
         return parse_if_stmt();
+    else if (match(TokenType::TT_WHILE))
+        return parse_while_stmt();
 
     return parse_expr_stmt();
 }
@@ -149,6 +151,15 @@ Stmt::ptr Parser::parse_if_stmt() {
     Stmt::ptr else_branch = match(TokenType::TT_ELSE) ? parse_stmt() : nullptr;
 
     return std::make_unique<IfStmt>(std::move(condition), std::move(then_branch), std::move(else_branch));
+}
+
+Stmt::ptr Parser::parse_while_stmt() {
+    consume(TokenType::TT_LEFT_PAREN, "Expect '(' after 'while'");
+    Node::ptr condition = parse_expr();
+    consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after whilecondition");
+
+    Stmt::ptr body = parse_stmt();
+    return std::make_unique<WhileStmt>(std::move(condition), std::move(body));
 }
 
 std::vector<Node::ptr> Parser::parse_block() {

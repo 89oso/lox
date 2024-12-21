@@ -44,6 +44,7 @@ private:
     Stmt::ptr parse_print_stmt();
     Stmt::ptr parse_expr_stmt();
     Stmt::ptr parse_if_stmt();
+    Stmt::ptr parse_while_stmt();
 
     std::vector<Node::ptr> parse_block();
 
