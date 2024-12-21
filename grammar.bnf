@@ -3,16 +3,18 @@ program               ::= decl* EOF ;
 decl                  ::= var_decl | stmt ;
 var_decl              ::= "var" IDENTIFIER ( "=" expr )? ";" ;
 
-stmt                  ::= expr_stmt | print_stmt | block_stmt;
+stmt                  ::= expr_stmt | print_stmt | block_stmt | if_stmt ;
 expr_stmt             ::= expr ";" ;
 print_stmt            ::= "print" expr ";" ;
 block_stmt            ::= "{" decl* "}" ;
+if_stmt               ::= "if" "(" expr ")" stmt ( "else" stmt)?
 
 expr                  ::= assignment_expr
 assignment_expr       ::= IDENTIFIER '=' assignment_expr | comma_expr;
 comma_expr            ::= conditional_expr (',' conditional_expr)* ;
-conditional_expr      ::= logical_expr ('?' expr ':' expr)* ;
-logical_expr          ::= equality_expr ( ("and" equality_expr) | ("or" equality_expr) )* ;
+conditional_expr      ::= logical_or_expr ('?' expr ':' expr)* ;
+logical_or_expr       ::= logical_and_expr ("or" logical_and_expr)* ;
+logical_and_expr      ::= equality_expr ("and" equality_expr)* ;
 equality_expr         ::= comparison_expr  ( ( "!=" | "==" ) comparison_expr  )* ;
 comparison_expr       ::= term_expr  ( ( '>' | ">=" | '<' | "<=" ) term_expr  )* ;
 term_expr             ::= factor_expr ( ( '-' | '+' ) factor_expr  )* ;

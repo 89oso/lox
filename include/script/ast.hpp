@@ -19,6 +19,7 @@ struct PrintStmt;
 struct ExprStmt;
 struct VarStmt;
 struct BlockStmt;
+struct IfStmt;
 
 class Visitor {
 public:
@@ -26,6 +27,7 @@ public:
     virtual void visit_expr_stmt(ExprStmt* stmt) = 0;
     virtual void visit_var_stmt(VarStmt* stmt) = 0;
     virtual void visit_block_stmt(BlockStmt* stmt) = 0;
+    virtual void visit_if_stmt(IfStmt* stmt) = 0;
 
     virtual void visit_unary_expr(UnaryExpr* node) = 0;
     virtual void visit_binary_expr(BinaryExpr* node) = 0;
@@ -55,6 +57,7 @@ struct Node {
         ExprStmt,
         VarStmt,
         BlockStmt,
+        IfStmt,
     };
 
     virtual ~Node() = default;
@@ -103,6 +106,7 @@ struct GroupingExpr : Expr {
     Node::ptr expr;
 };
 
+// TODO: cleanup this node
 struct LiteralExpr : Expr {
     enum class LiteralType { Nil, Boolean, Number, String };
 
@@ -238,4 +242,17 @@ struct BlockStmt : Stmt {
     }
 
     std::vector<Node::ptr> statements;
+};
+
+struct IfStmt : Stmt {
+    explicit IfStmt(Expr::ptr condition, Stmt::ptr then_branch, Stmt::ptr else_branch);
+    void accept(Visitor* visitor) override;
+
+    u8 type() override {
+        return Node::Type::IfStmt;
+    }
+
+    Expr::ptr condition;
+    Stmt::ptr then_branch;
+    Stmt::ptr else_branch;
 };

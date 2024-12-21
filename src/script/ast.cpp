@@ -112,3 +112,13 @@ BlockStmt::BlockStmt(std::vector<Node::ptr> statements)
 void BlockStmt::accept(Visitor* visitor) {
     visitor->visit_block_stmt(this);
 }
+
+IfStmt::IfStmt(Expr::ptr condition, Stmt::ptr then_branch, Stmt::ptr else_branch)
+    : condition(std::move(condition)),
+      then_branch(std::move(then_branch)),
+      else_branch(std::move(else_branch)) {
+}
+
+void IfStmt::accept(Visitor* visitor) {
+    visitor->visit_if_stmt(this);
+}

@@ -25,20 +25,19 @@ void Interpreter::visit_print_stmt(PrintStmt* stmt) {
 
     auto& variable = _value_stack.back();
 
-    std::cout << "print[";
+    std::cout << "[runtime]: ";
 
     if (variable.type == ScriptValueType::Nil) {
         std::cout << "nil";
     } else if (variable.type == ScriptValueType::Boolean) {
-        std::string boolean_value = std::get<bool>(variable.value) ? "true" : "false";
-        std::cout << "boolean -> " << boolean_value;
+        std::cout << (std::get<bool>(variable.value) ? "true" : "false");
     } else if (variable.type == ScriptValueType::Number) {
-        std::cout << "number -> " << std::get<f64>(variable.value);
+        std::cout << std::get<f64>(variable.value);
     } else if (variable.type == ScriptValueType::String) {
-        std::cout << "string -> " << std::get<std::string>(variable.value);
+        std::cout << std::get<std::string>(variable.value);
     }
 
-    std::cout << "]\n";
+    std::cout << "\n";
 
     _value_stack.pop_back();
 }
@@ -67,6 +66,17 @@ void Interpreter::visit_var_stmt(VarStmt* stmt) {
 void Interpreter::visit_block_stmt(BlockStmt* stmt) {
     auto environment = std::make_unique<ScriptEnvironment>(_current_env);
     execute_block(stmt->statements, std::move(environment));
+}
+
+void Interpreter::visit_if_stmt(IfStmt* stmt) {
+    stmt->condition->accept(this);
+
+    ScriptValue& value = _value_stack.back();
+
+    if (is_true(value))
+        stmt->then_branch->accept(this);
+    else if (stmt->else_branch)
+        stmt->else_branch->accept(this);
 }
 
 void Interpreter::visit_unary_expr(UnaryExpr* node) {
@@ -208,7 +218,22 @@ void Interpreter::visit_comma_expr(CommaExpr* node) {
 }
 
 void Interpreter::visit_logical_expr(LogicalExpr* node) {
-    // TODO
+    node->left->accept(this);
+
+    ScriptValue& left_result = _value_stack.back();
+
+    // TODO: modify the top of the stack? prob not needed
+    if (node->op.type == TokenType::TT_OR) {
+        if (is_true(left_result))
+            return;
+    } else {
+        if (!is_true(left_result))
+            return;
+    }
+
+    // left side is good so we must evaluate the right side now
+    _value_stack.pop_back();
+    node->right->accept(this);
 }
 
 void Interpreter::visit_conditional_expr(ConditionalExpr* node) {

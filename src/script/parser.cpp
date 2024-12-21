@@ -120,6 +120,8 @@ Stmt::ptr Parser::parse_stmt() {
         return parse_print_stmt();
     else if (match(TokenType::TT_LEFT_BRACE))
         return std::make_unique<BlockStmt>(parse_block());
+    else if (match(TokenType::TT_IF))
+        return parse_if_stmt();
 
     return parse_expr_stmt();
 }
@@ -136,6 +138,17 @@ Stmt::ptr Parser::parse_expr_stmt() {
     consume(TokenType::TT_SEMICOLON, "Expect ';' after expression");
 
     return std::make_unique<ExprStmt>(std::move(expr));
+}
+
+Stmt::ptr Parser::parse_if_stmt() {
+    consume(TokenType::TT_LEFT_PAREN, "Expect '(' after 'if'");
+    Node::ptr condition = parse_expr();
+    consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after condition");
+
+    Stmt::ptr then_branch = parse_stmt();
+    Stmt::ptr else_branch = match(TokenType::TT_ELSE) ? parse_stmt() : nullptr;
+
+    return std::make_unique<IfStmt>(std::move(condition), std::move(then_branch), std::move(else_branch));
 }
 
 std::vector<Node::ptr> Parser::parse_block() {
@@ -190,7 +203,7 @@ Node::ptr Parser::parse_comma_expr() {
 }
 
 Node::ptr Parser::parse_conditional_expr() {
-    Node::ptr expr = parse_logical_expr();
+    Node::ptr expr = parse_logical_or_expr();
 
     while (match(TokenType::TT_QMARK)) {
         Node::ptr left = parse_expr();
@@ -203,10 +216,23 @@ Node::ptr Parser::parse_conditional_expr() {
     return expr;
 }
 
-Node::ptr Parser::parse_logical_expr() {
+Node::ptr Parser::parse_logical_or_expr() {
+    Node::ptr expr = parse_logical_and_expr();
+
+    while (match(TokenType::TT_OR)) {
+        Token op = _previous;
+        Node::ptr right = parse_logical_and_expr();
+
+        expr = std::make_unique<LogicalExpr>(op, std::move(expr), std::move(right));
+    }
+
+    return expr;
+}
+
+Node::ptr Parser::parse_logical_and_expr() {
     Node::ptr expr = parse_equality_expr();
 
-    while (matches_any_of(TokenType::TT_AND, TokenType::TT_OR)) {
+    while (match(TokenType::TT_AND)) {
         Token op = _previous;
         Node::ptr right = parse_equality_expr();
 

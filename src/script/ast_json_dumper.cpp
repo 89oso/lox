@@ -51,6 +51,15 @@ void AstJsonDumper::visit_block_stmt(BlockStmt* stmt) {
     write_node_array("statements", stmt->statements);
 }
 
+void AstJsonDumper::visit_if_stmt(IfStmt* stmt) {
+    indent++;
+
+    write_str_field("type", "IfStmt");
+    write_node("condition", stmt->condition.get());
+    write_node("then_branch", stmt->then_branch.get());
+    write_node("else_branch", stmt->else_branch.get());
+}
+
 void AstJsonDumper::visit_unary_expr(UnaryExpr* node) {
     indent++;
 
