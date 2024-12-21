@@ -12,12 +12,9 @@ Parser::Parser(const std::string& buffer)
 }
 
 std::vector<Stmt::ptr>& Parser::parse() {
-    try {
-        while (_current.type != TokenType::TT_EOF) {
-            _statements.push_back(std::move(parse_decl()));
-        }
-    } catch (const ParseError& e) {
-        std::cerr << "[parser error]: " << e.what() << "\n";
+    while (_current.type != TokenType::TT_EOF) {
+        auto stmt = parse_decl();
+        _statements.push_back(std::move(stmt));
     }
 
     return _statements;
@@ -99,6 +96,7 @@ Stmt::ptr Parser::parse_decl() {
 
         return parse_stmt();
     } catch (const ParseError& e) {
+        std::cerr << "[parser error]: " << e.what() << "\n";
         sync();
         return 0;
     }

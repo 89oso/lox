@@ -12,7 +12,7 @@ Lexer::Lexer(const std::string& buffer)
 
 void Lexer::error(const std::string& msg) {
     _error = true;
-    std::cerr << "ERROR: " << msg << " at line " << _line << ", col " << _column << "\n";
+    std::cerr << "[lexer error]: " << msg << " at line " << _line << ", col " << _column << "\n";
 }
 
 void Lexer::print() {
