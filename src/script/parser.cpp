@@ -124,6 +124,8 @@ Stmt::ptr Parser::parse_stmt() {
         return parse_if_stmt();
     else if (match(TokenType::TT_WHILE))
         return parse_while_stmt();
+    else if (match(TokenType::TT_FOR))
+        return parse_for_stmt();
 
     return parse_expr_stmt();
 }
@@ -156,10 +158,63 @@ Stmt::ptr Parser::parse_if_stmt() {
 Stmt::ptr Parser::parse_while_stmt() {
     consume(TokenType::TT_LEFT_PAREN, "Expect '(' after 'while'");
     Node::ptr condition = parse_expr();
-    consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after whilecondition");
+    consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after while condition");
 
     Stmt::ptr body = parse_stmt();
     return std::make_unique<WhileStmt>(std::move(condition), std::move(body));
+}
+
+Stmt::ptr Parser::parse_for_stmt() {
+    consume(TokenType::TT_LEFT_PAREN, "Expect '(' after 'for'");
+
+    Stmt::ptr initializer = nullptr;
+    if (match(TokenType::TT_SEMICOLON))
+        ;
+    else if (match(TokenType::TT_VAR))
+        initializer = parse_var_decl();
+    else
+        initializer = parse_expr_stmt();
+
+    Node::ptr condition = nullptr;
+    if (!check(TokenType::TT_SEMICOLON))
+        condition = parse_expr();
+
+    consume(TokenType::TT_SEMICOLON, "Expect ';' after loop condition");
+
+    Node::ptr increment = nullptr;
+    if (!check(TokenType::TT_RIGHT_PAREN))
+        increment = parse_expr();
+
+    consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after for clauses");
+
+    Stmt::ptr body = parse_stmt();
+
+    // if we have an increment expr then we can 'append' it to the body stmt
+    if (increment) {
+        std::vector<Node::ptr> statements;
+        statements.push_back(std::move(body));
+        statements.push_back(std::move(increment));
+        body = std::make_unique<BlockStmt>(std::move(statements));
+    }
+
+    // if the condition was omitted then we emplace a 'true' literal expr
+    if (!condition) {
+        condition = std::make_unique<LiteralExpr>(LiteralExpr::LiteralType::Boolean);
+        LiteralExpr* literal_expr = reinterpret_cast<LiteralExpr*>(condition.get());
+        literal_expr->value.boolean = true;
+    }
+
+    body = std::make_unique<WhileStmt>(std::move(condition), std::move(body));
+
+    // if we have an initializer node then we can 'prepend' to the body stmt
+    if (initializer) {
+        std::vector<Node::ptr> statements;
+        statements.push_back(std::move(initializer));
+        statements.push_back(std::move(body));
+        body = std::make_unique<BlockStmt>(std::move(statements));
+    }
+
+    return body;
 }
 
 std::vector<Node::ptr> Parser::parse_block() {
