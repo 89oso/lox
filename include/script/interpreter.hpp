@@ -3,6 +3,11 @@
 #include "ast.hpp"
 #include "environment.hpp"
 
+enum class ControlFlowSignal {
+    None,
+    Break,
+};
+
 class Interpreter : public Visitor {
 public:
     Interpreter();
@@ -15,6 +20,7 @@ public:
     void visit_block_stmt(BlockStmt* stmt) override;
     void visit_if_stmt(IfStmt* stmt) override;
     void visit_while_stmt(WhileStmt* stmt) override;
+    void visit_break_stmt(BreakStmt* stmt) override;
 
     void visit_unary_expr(UnaryExpr* node) override;
     void visit_binary_expr(BinaryExpr* node) override;
@@ -33,11 +39,12 @@ private:
     // value from latest evaluated expression
     ScriptValue _expr_value;
 
-    void execute_block(std::vector<Node::ptr>& statements, std::unique_ptr<ScriptEnvironment> environment);
+    ControlFlowSignal _control_flow_signal;
 
     // TODO: change places that use Node for type when Expr should be explicitly stated
     ScriptValue& evaluate(Node* expr);
     void execute(Stmt* stmt);
+    void execute_block(std::vector<Node::ptr>& statements, std::unique_ptr<ScriptEnvironment> environment);
 
     bool is_true(ScriptValue value);
     bool is_equal(ScriptValue a, ScriptValue b);

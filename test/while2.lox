@@ -1,0 +1,18 @@
+var i = 0;
+while (i < 10)
+{
+    if (i == 2)
+    {
+        {
+            print "i = 2, break inbound";
+            break;
+            print "this should not print";
+        }
+
+        print "this definitely should not print";
+    }
+
+    print i;
+
+    i = i + 1;
+}

@@ -15,6 +15,7 @@ private:
     Token _current;
     Token _previous;
     bool _error;
+    bool _allow_break_stmt;
     std::vector<Stmt::ptr> _statements;
 
     Token advance();
@@ -46,6 +47,7 @@ private:
     Stmt::ptr parse_if_stmt();
     Stmt::ptr parse_while_stmt();
     Stmt::ptr parse_for_stmt();
+    Stmt::ptr parse_break_stmt();
 
     std::vector<Node::ptr> parse_block();
 

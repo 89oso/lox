@@ -2,8 +2,8 @@
 #include <iostream>
 
 const char* Token::reserved_keywords[] = {
-    "and", "class", "else",   "false", "fun",  "for",  "if",  "nil",
-    "or",  "print", "return", "super", "this", "true", "var", "while",
+    "and",   "class",  "else",  "false", "fun",  "for", "if",    "nil",   "or",
+    "print", "return", "super", "this",  "true", "var", "while", "break",
 };
 
 Token::Token()

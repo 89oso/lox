@@ -131,3 +131,10 @@ WhileStmt::WhileStmt(Expr::ptr condition, Stmt::ptr body)
 void WhileStmt::accept(Visitor* visitor) {
     visitor->visit_while_stmt(this);
 }
+
+BreakStmt::BreakStmt() {
+}
+
+void BreakStmt::accept(Visitor* visitor) {
+    visitor->visit_break_stmt(this);
+}

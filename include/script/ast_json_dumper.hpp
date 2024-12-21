@@ -14,6 +14,7 @@ public:
     void visit_block_stmt(BlockStmt* stmt) override;
     void visit_if_stmt(IfStmt* stmt) override;
     void visit_while_stmt(WhileStmt* stmt) override;
+    void visit_break_stmt(BreakStmt* stmt) override;
 
     void visit_unary_expr(UnaryExpr* node) override;
     void visit_binary_expr(BinaryExpr* node) override;

@@ -56,6 +56,7 @@ enum TokenType : u32 {
     TT_TRUE,
     TT_VAR,
     TT_WHILE,
+    TT_BREAK,
     TT_RESERVED_END,
 
     TT_RESERVED_COUNT = TT_RESERVED_END - TT_RESERVED_BEGIN,

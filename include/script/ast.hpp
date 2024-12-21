@@ -21,6 +21,7 @@ struct VarStmt;
 struct BlockStmt;
 struct IfStmt;
 struct WhileStmt;
+struct BreakStmt;
 
 class Visitor {
 public:
@@ -30,6 +31,7 @@ public:
     virtual void visit_block_stmt(BlockStmt* stmt) = 0;
     virtual void visit_if_stmt(IfStmt* stmt) = 0;
     virtual void visit_while_stmt(WhileStmt* stmt) = 0;
+    virtual void visit_break_stmt(BreakStmt* stmt) = 0;
 
     virtual void visit_unary_expr(UnaryExpr* node) = 0;
     virtual void visit_binary_expr(BinaryExpr* node) = 0;
@@ -61,6 +63,7 @@ struct Node {
         BlockStmt,
         IfStmt,
         WhileStmt,
+        BreakStmt,
     };
 
     virtual ~Node() = default;
@@ -270,4 +273,13 @@ struct WhileStmt : Stmt {
 
     Expr::ptr condition;
     Stmt::ptr body;
+};
+
+struct BreakStmt : Stmt {
+    explicit BreakStmt();
+    void accept(Visitor* visitor) override;
+
+    u8 type() override {
+        return Node::Type::BreakStmt;
+    }
 };

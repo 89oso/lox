@@ -7,6 +7,7 @@
 
 Interpreter::Interpreter() {
     _current_env = &_global_env;
+    _control_flow_signal = ControlFlowSignal::None;
 }
 
 void Interpreter::interpret(Node* node) {
@@ -50,6 +51,8 @@ void Interpreter::visit_var_stmt(VarStmt* stmt) {
 }
 
 void Interpreter::visit_block_stmt(BlockStmt* stmt) {
+    if (_control_flow_signal != ControlFlowSignal::None)
+        return;
     auto environment = std::make_unique<ScriptEnvironment>(_current_env);
     execute_block(stmt->statements, std::move(environment));
 }
@@ -68,7 +71,16 @@ void Interpreter::visit_while_stmt(WhileStmt* stmt) {
 
     while (is_true(evaluate(condition))) {
         execute(stmt->body.get());
+
+        if (_control_flow_signal == ControlFlowSignal::Break) {
+            _control_flow_signal = ControlFlowSignal::None;
+            break;
+        }
     }
+}
+
+void Interpreter::visit_break_stmt(BreakStmt* stmt) {
+    _control_flow_signal = ControlFlowSignal::Break;
 }
 
 void Interpreter::visit_unary_expr(UnaryExpr* node) {
@@ -229,6 +241,15 @@ void Interpreter::visit_assignment_expr(AssignmentExpr* node) {
     _current_env->assign_variable(node->name, value);
 }
 
+ScriptValue& Interpreter::evaluate(Node* expr) {
+    expr->accept(this);
+    return _expr_value;
+}
+
+void Interpreter::execute(Stmt* stmt) {
+    stmt->accept(this);
+}
+
 void Interpreter::execute_block(std::vector<Node::ptr>& statements, std::unique_ptr<ScriptEnvironment> environment) {
     ScriptEnvironment* previous_env = _current_env;
 
@@ -240,16 +261,9 @@ void Interpreter::execute_block(std::vector<Node::ptr>& statements, std::unique_
     _current_env = environment.get();
     for (auto& stmt : statements) {
         execute(reinterpret_cast<Stmt*>(stmt.get()));
+        if (_control_flow_signal != ControlFlowSignal::None)
+            break;
     }
-}
-
-ScriptValue& Interpreter::evaluate(Node* expr) {
-    expr->accept(this);
-    return _expr_value;
-}
-
-void Interpreter::execute(Stmt* stmt) {
-    stmt->accept(this);
 }
 
 bool Interpreter::is_true(ScriptValue variable) {

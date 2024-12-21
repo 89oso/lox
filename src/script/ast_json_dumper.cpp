@@ -68,6 +68,12 @@ void AstJsonDumper::visit_while_stmt(WhileStmt* stmt) {
     write_node("body", stmt->body.get());
 }
 
+void AstJsonDumper::visit_break_stmt(BreakStmt* stmt) {
+    indent++;
+
+    write_str_field("type", "BreakStmt");
+}
+
 void AstJsonDumper::visit_unary_expr(UnaryExpr* node) {
     indent++;
 

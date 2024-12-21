@@ -6,7 +6,8 @@
 
 Parser::Parser(const std::string& buffer)
     : _previous(TT_INVALID),
-      _error{ false } {
+      _error(false),
+      _allow_break_stmt(false) {
     _lexer = std::make_unique<Lexer>(buffer);
     _current = _lexer->next();
 }
@@ -98,14 +99,14 @@ Stmt::ptr Parser::parse_decl() {
     } catch (const ParseError& e) {
         std::cerr << "[parser error]: " << e.what() << "\n";
         sync();
-        return 0;
+        return nullptr;
     }
 }
 
 Stmt::ptr Parser::parse_var_decl() {
     Token name = consume(TokenType::TT_IDENTIFIER, "Expect variabled name");
 
-    Expr::ptr initializer;
+    Expr::ptr initializer = nullptr;
     if (match(TokenType::TT_EQUAL)) {
         initializer = parse_expr();
     }
@@ -126,6 +127,8 @@ Stmt::ptr Parser::parse_stmt() {
         return parse_while_stmt();
     else if (match(TokenType::TT_FOR))
         return parse_for_stmt();
+    else if (match(TokenType::TT_BREAK))
+        return parse_break_stmt();
 
     return parse_expr_stmt();
 }
@@ -160,7 +163,10 @@ Stmt::ptr Parser::parse_while_stmt() {
     Node::ptr condition = parse_expr();
     consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after while condition");
 
+    _allow_break_stmt = true;
     Stmt::ptr body = parse_stmt();
+    _allow_break_stmt = false;
+
     return std::make_unique<WhileStmt>(std::move(condition), std::move(body));
 }
 
@@ -187,7 +193,9 @@ Stmt::ptr Parser::parse_for_stmt() {
 
     consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after for clauses");
 
+    _allow_break_stmt = true;
     Stmt::ptr body = parse_stmt();
+    _allow_break_stmt = false;
 
     // if we have an increment expr then we can 'append' it to the body stmt
     if (increment) {
@@ -215,6 +223,16 @@ Stmt::ptr Parser::parse_for_stmt() {
     }
 
     return body;
+}
+
+Stmt::ptr Parser::parse_break_stmt() {
+    if (_allow_break_stmt) {
+        consume(TokenType::TT_SEMICOLON, "Expect ';' after 'break'");
+        return std::make_unique<BreakStmt>();
+    }
+
+    throw_error(_current, "a break statement may only be used within a loop");
+    return nullptr;
 }
 
 std::vector<Node::ptr> Parser::parse_block() {
@@ -403,5 +421,5 @@ Node::ptr Parser::parse_primary_expr() {
     }
 
     Parser::throw_error(_current, "Expect expression");
-    return 0;
+    return nullptr;
 }
