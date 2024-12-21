@@ -44,6 +44,8 @@ private:
     Stmt::ptr parse_print_stmt();
     Stmt::ptr parse_expr_stmt();
 
+    std::vector<Node::ptr> parse_block();
+
     Node::ptr parse_expr();
     Node::ptr parse_assignment_expr();
     Node::ptr parse_comma_expr();

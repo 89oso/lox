@@ -44,6 +44,13 @@ void AstJsonDumper::visit_var_stmt(VarStmt* stmt) {
     write_node("initializer", stmt->initializer.get());
 }
 
+void AstJsonDumper::visit_block_stmt(BlockStmt* stmt) {
+    indent++;
+
+    write_str_field("type", "BlockStmt");
+    write_node_array("statements", stmt->statements);
+}
+
 void AstJsonDumper::visit_unary_expr(UnaryExpr* node) {
     indent++;
 

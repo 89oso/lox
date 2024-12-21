@@ -11,6 +11,7 @@ public:
     void visit_print_stmt(PrintStmt* stmt) override;
     void visit_expr_stmt(ExprStmt* stmt) override;
     void visit_var_stmt(VarStmt* stmt) override;
+    void visit_block_stmt(BlockStmt* stmt) override;
 
     void visit_unary_expr(UnaryExpr* node) override;
     void visit_binary_expr(BinaryExpr* node) override;

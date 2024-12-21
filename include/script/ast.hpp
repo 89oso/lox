@@ -18,12 +18,14 @@ struct AssignmentExpr;
 struct PrintStmt;
 struct ExprStmt;
 struct VarStmt;
+struct BlockStmt;
 
 class Visitor {
 public:
     virtual void visit_print_stmt(PrintStmt* stmt) = 0;
     virtual void visit_expr_stmt(ExprStmt* stmt) = 0;
     virtual void visit_var_stmt(VarStmt* stmt) = 0;
+    virtual void visit_block_stmt(BlockStmt* stmt) = 0;
 
     virtual void visit_unary_expr(UnaryExpr* node) = 0;
     virtual void visit_binary_expr(BinaryExpr* node) = 0;
@@ -52,6 +54,7 @@ struct Node {
         PrintStmt,
         ExprStmt,
         VarStmt,
+        BlockStmt,
     };
 
     virtual ~Node() = default;
@@ -224,4 +227,15 @@ struct VarStmt : Stmt {
 
     Token name;
     Expr::ptr initializer;
+};
+
+struct BlockStmt : Stmt {
+    explicit BlockStmt(std::vector<Node::ptr> statements);
+    void accept(Visitor* visitor) override;
+
+    u8 type() override {
+        return Node::Type::BlockStmt;
+    }
+
+    std::vector<Node::ptr> statements;
 };

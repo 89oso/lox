@@ -118,6 +118,8 @@ Stmt::ptr Parser::parse_var_decl() {
 Stmt::ptr Parser::parse_stmt() {
     if (match(TokenType::TT_PRINT))
         return parse_print_stmt();
+    else if (match(TokenType::TT_LEFT_BRACE))
+        return std::make_unique<BlockStmt>(parse_block());
 
     return parse_expr_stmt();
 }
@@ -134,6 +136,17 @@ Stmt::ptr Parser::parse_expr_stmt() {
     consume(TokenType::TT_SEMICOLON, "Expect ';' after expression");
 
     return std::make_unique<ExprStmt>(std::move(expr));
+}
+
+std::vector<Node::ptr> Parser::parse_block() {
+    std::vector<Node::ptr> statements;
+
+    while (!check(TokenType::TT_RIGHT_BRACE) && _current.type != TokenType::TT_EOF)
+        statements.push_back(std::move(parse_decl()));
+
+    consume(TokenType::TT_RIGHT_BRACE, "Expect '}' after block");
+
+    return statements;
 }
 
 Node::ptr Parser::parse_expr() {

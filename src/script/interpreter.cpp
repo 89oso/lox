@@ -1,11 +1,13 @@
 #include "script/interpreter.hpp"
 #include "common/exception.hpp"
+#include "common/finally.hpp"
 
 #include <iostream>
 #include <format>
 
 Interpreter::Interpreter() {
-    value_stack.reserve(100);
+    _current_env = &_global_env;
+    _value_stack.reserve(100);
 }
 
 void Interpreter::interpret(Node* node) {
@@ -21,7 +23,7 @@ void Interpreter::visit_print_stmt(PrintStmt* stmt) {
     // evaluate the expression then print the variable on the top of the stack
     stmt->expr->accept(this);
 
-    auto& variable = value_stack.back();
+    auto& variable = _value_stack.back();
 
     std::cout << "print[";
 
@@ -38,7 +40,7 @@ void Interpreter::visit_print_stmt(PrintStmt* stmt) {
 
     std::cout << "]\n";
 
-    value_stack.pop_back();
+    _value_stack.pop_back();
 }
 
 void Interpreter::visit_expr_stmt(ExprStmt* stmt) {
@@ -46,7 +48,7 @@ void Interpreter::visit_expr_stmt(ExprStmt* stmt) {
     stmt->expr->accept(this);
 
     // values created by the expr stmt do not need to stay in the value stack
-    value_stack.pop_back();
+    _value_stack.pop_back();
 }
 
 void Interpreter::visit_var_stmt(VarStmt* stmt) {
@@ -56,17 +58,22 @@ void Interpreter::visit_var_stmt(VarStmt* stmt) {
     // if an initializer expr is present then evaluate it
     if (stmt->initializer) {
         stmt->initializer->accept(this);
-        value = value_stack.back();
+        value = _value_stack.back();
     }
 
-    environment.define_variable(stmt->name.value, value);
+    _current_env->define_variable(stmt->name.value, value);
+}
+
+void Interpreter::visit_block_stmt(BlockStmt* stmt) {
+    auto environment = std::make_unique<ScriptEnvironment>(_current_env);
+    execute_block(stmt->statements, std::move(environment));
 }
 
 void Interpreter::visit_unary_expr(UnaryExpr* node) {
     // evaluate the sub-expression first
     node->expr->accept(this);
 
-    auto& variable = value_stack.back();
+    auto& variable = _value_stack.back();
     if (node->op.type == TokenType::TT_MINUS) {
         assert_value_type(node->op, ScriptValueType::Number, variable);
         variable.value = -std::get<f64>(variable.value);
@@ -78,10 +85,10 @@ void Interpreter::visit_unary_expr(UnaryExpr* node) {
 
 void Interpreter::visit_binary_expr(BinaryExpr* node) {
     node->left->accept(this);
-    auto& left = value_stack.back();
+    auto& left = _value_stack.back();
 
     node->right->accept(this);
-    auto& right = value_stack.back();
+    auto& right = _value_stack.back();
 
     ScriptValue variable;
 
@@ -165,7 +172,7 @@ void Interpreter::visit_binary_expr(BinaryExpr* node) {
     }
 
     // remove left and right vars from var stack
-    value_stack.pop_back();
+    _value_stack.pop_back();
 
     left = variable;
 }
@@ -193,7 +200,7 @@ void Interpreter::visit_literal_expr(LiteralExpr* node) {
         variable.value = node->value.string;
     }
 
-    value_stack.push_back(variable);
+    _value_stack.push_back(variable);
 }
 
 void Interpreter::visit_comma_expr(CommaExpr* node) {
@@ -209,15 +216,15 @@ void Interpreter::visit_conditional_expr(ConditionalExpr* node) {
 }
 
 void Interpreter::visit_variable_expr(VariableExpr* node) {
-    ScriptValue value = environment.find_variable(node->name);
-    value_stack.push_back(value);
+    ScriptValue value = _current_env->find_variable(node->name);
+    _value_stack.push_back(value);
 }
 
 void Interpreter::visit_assignment_expr(AssignmentExpr* node) {
     node->value->accept(this);
 
-    auto value = value_stack.back();
-    environment.assign_variable(node->name, value);
+    auto value = _value_stack.back();
+    _current_env->assign_variable(node->name, value);
 
     // TODO: pop value from stack?
 }
@@ -225,12 +232,12 @@ void Interpreter::visit_assignment_expr(AssignmentExpr* node) {
 void Interpreter::print_stack() {
     std::cout << "---- VARIABLE STACK ----\n";
 
-    std::cout << "Variables (" << value_stack.size() << "):\n";
+    std::cout << "Variables (" << _value_stack.size() << "):\n";
 
-    for (size_t i = 0; i < value_stack.size(); i++) {
+    for (size_t i = 0; i < _value_stack.size(); i++) {
         std::cout << "    " << i << ": ";
 
-        auto& variable = value_stack[i];
+        auto& variable = _value_stack[i];
         if (variable.type == ScriptValueType::Nil) {
             std::cout << "nil";
         } else if (variable.type == ScriptValueType::Boolean) {
@@ -246,6 +253,20 @@ void Interpreter::print_stack() {
     }
 
     std::cout << "------------------------\n";
+}
+
+void Interpreter::execute_block(std::vector<Node::ptr>& statements, std::unique_ptr<ScriptEnvironment> environment) {
+    ScriptEnvironment* previous_env = _current_env;
+
+    // defer this
+    auto _ = oso::finally([&] {
+        _current_env = previous_env;
+    });
+
+    _current_env = environment.get();
+    for (auto& stmt : statements) {
+        stmt->accept(this);
+    }
 }
 
 bool Interpreter::is_true(ScriptValue& variable) {

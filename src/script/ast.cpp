@@ -104,3 +104,11 @@ VarStmt::VarStmt(Token name, Expr::ptr initializer)
 void VarStmt::accept(Visitor* visitor) {
     visitor->visit_var_stmt(this);
 }
+
+BlockStmt::BlockStmt(std::vector<Node::ptr> statements)
+    : statements(std::move(statements)) {
+}
+
+void BlockStmt::accept(Visitor* visitor) {
+    visitor->visit_block_stmt(this);
+}
