@@ -11,3 +11,7 @@ print "hello" + ", world from lox";
 // string concat. with numbers too
 print "the answer is " + 42;
 print 42 + " is the answer";
+
+print "one";
+print true;
+print 2 + 1;
