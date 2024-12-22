@@ -1,0 +1,9 @@
+fun test(a, b, c) {
+    print a;
+    print b; // should print "yup" from argument, not global var b "nope"
+    print c;
+}
+
+var b = "nope";
+
+test(0 == 1 ? 42 : 0, "yup", "hello world");

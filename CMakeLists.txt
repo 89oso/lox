@@ -15,6 +15,7 @@ add_executable(lox
     src/script/environment.cpp
     src/script/interpreter.cpp
     src/script/lexer.cpp
+    src/script/object.cpp
     src/script/parser.cpp
     src/script/token.cpp
 )

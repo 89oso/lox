@@ -22,7 +22,7 @@ private:
 
     bool check(TokenType type);
     bool match(TokenType type);
-    Token consume(TokenType type, const char* error);
+    Token consume(TokenType type, const std::string& error);
 
     void throw_error(Token token, const std::string& error);
 
@@ -48,12 +48,12 @@ private:
     Stmt::ptr parse_while_stmt();
     Stmt::ptr parse_for_stmt();
     Stmt::ptr parse_break_stmt();
+    Stmt::ptr parse_function_stmt(const std::string& kind);
 
     std::vector<Node::ptr> parse_block();
 
     Node::ptr parse_expr();
     Node::ptr parse_assignment_expr();
-    Node::ptr parse_comma_expr();
     Node::ptr parse_conditional_expr();
     Node::ptr parse_logical_or_expr();
     Node::ptr parse_logical_and_expr();

@@ -74,6 +74,14 @@ void AstJsonDumper::visit_break_stmt(BreakStmt* stmt) {
     write_str_field("type", "BreakStmt");
 }
 
+void AstJsonDumper::visit_function_stmt(FunctionStmt* stmt) {
+    indent++;
+
+    write_str_field("type", "FunctionStmt");
+    write_token_array("params", stmt->params);
+    write_node_array("body", stmt->body);
+}
+
 void AstJsonDumper::visit_unary_expr(UnaryExpr* node) {
     indent++;
 
@@ -165,13 +173,6 @@ void AstJsonDumper::visit_literal_expr(LiteralExpr* node) {
         write_str_field("variable_type", "string");
         write_str_field("variable_value", node->value.string);
     }
-}
-
-void AstJsonDumper::visit_comma_expr(CommaExpr* node) {
-    indent++;
-
-    write_str_field("type", "CommaExpr");
-    write_node_array("expressions", node->expressions);
 }
 
 void AstJsonDumper::visit_logical_expr(LogicalExpr* node) {
@@ -290,6 +291,25 @@ void AstJsonDumper::write_node_array(const std::string& name, std::vector<Node::
         u32 index = 0;
         for (auto& node : nodes) {
             write_node("node" + std::to_string(index), node.get());
+            index++;
+        }
+        indent = indent_save;
+        write("},", true, true);
+    }
+}
+
+void AstJsonDumper::write_token_array(const std::string& name, std::vector<Token>& tokens) {
+    write("\"" + name + "\"", true);
+
+    if (tokens.empty()) {
+        write(": null,", false, true);
+    } else {
+        write(": {", false, true);
+        u32 indent_save = indent;
+        indent++;
+        u32 index = 0;
+        for (auto& token : tokens) {
+            write_str_field(std::to_string(index), token.value);
             index++;
         }
         indent = indent_save;

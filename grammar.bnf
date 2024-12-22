@@ -1,6 +1,7 @@
 program               ::= decl* EOF ;
 
-decl                  ::= var_decl | stmt ;
+decl                  ::= var_decl | fun_decl | stmt ;
+fun_decl              ::= "fun" function ;
 var_decl              ::= "var" IDENTIFIER ( "=" expr )? ";" ;
 
 stmt                  ::= expr_stmt | print_stmt | block_stmt | if_stmt | while_stmt | for_stmt;
@@ -12,8 +13,7 @@ while_stmt            ::= "while" "(" expr ")" stmt ;
 for_stmt              ::= "for" "(" ( var_decl | expr_stmt | ";" ) expr? ";" expr? ")" stmt ;
 
 expr                  ::= assignment_expr
-assignment_expr       ::= IDENTIFIER '=' assignment_expr | comma_expr;
-comma_expr            ::= conditional_expr (',' conditional_expr)* ;
+assignment_expr       ::= IDENTIFIER '=' assignment_expr | conditional_expr;
 conditional_expr      ::= logical_or_expr ('?' expr ':' expr)* ;
 logical_or_expr       ::= logical_and_expr ("or" logical_and_expr)* ;
 logical_and_expr      ::= equality_expr ("and" equality_expr)* ;
@@ -22,10 +22,12 @@ comparison_expr       ::= term_expr  ( ( '>' | ">=" | '<' | "<=" ) term_expr  )*
 term_expr             ::= factor_expr ( ( '-' | '+' ) factor_expr  )* ;
 factor_expr           ::= unary_expr ( ( '/' | '*' ) unary_expr )* ;
 unary_expr            ::= ( '!' | '-' ) unary_expr | call_expr ;
-call_expr             ::= primary_expr ( "(" arguments_expr? ")" )* ;
+call_expr             ::= primary_expr ( "(" arguments? ")" )* ;
 primary_expr          ::= NUMBER | STRING | "true" | "false" | "nil" | "(" expr ")" IDENTIFIER ;
 
-arguments_expr        ::= expr ( "," expr )* ;
+arguments        ::= expr ( "," expr )* ;
+function         ::= IDENTIFIER "(" parameters? ")" block ;
+parameters       ::= IDENTIFIER ( "," IDENTIFIER )* ;
 
 NUMBER                ::= DIGIT+ ( "." DIGIT+ )? ;
 STRING                ::= '"' <any_except('"')>* '"' ;

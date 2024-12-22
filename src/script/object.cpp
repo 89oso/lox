@@ -1,0 +1,43 @@
+#include "script/object.hpp"
+#include "script/interpreter.hpp"
+
+#include <iostream>
+
+ScriptObject::ScriptObject()
+    : type(ScriptObjectType::Nil) {
+}
+
+ScriptObject::Callable::Callable()
+    : arity(0),
+      function(0) {
+}
+
+ScriptObject::Callable::Callable(u16 arity, callable_type function)
+    : arity(0),
+      function(function) {
+}
+
+ScriptObject ScriptObject::Callable::call(Interpreter* interpreter, std::vector<ScriptObject>& arguments) {
+    return function(interpreter, arguments);
+}
+
+ScriptFunction::ScriptFunction(FunctionStmt* decl)
+    : decl(decl) {
+    arity = decl->params.size();
+}
+
+ScriptObject ScriptFunction::call(Interpreter* interpreter, std::vector<ScriptObject>& arguments) {
+    ScriptEnvironment environment = interpreter->global_env();
+
+    for (int i = 0; i < decl->params.size(); i++) {
+        environment.define_variable(decl->params.at(i).value, arguments.at(i));
+    }
+
+    auto boxed_environment = std::make_shared<ScriptEnvironment>(environment);
+    interpreter->execute_block(decl->body, boxed_environment);
+
+    ScriptObject result;
+    result.type = ScriptObjectType::Nil;
+
+    return result;
+}

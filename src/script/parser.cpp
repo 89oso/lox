@@ -2,6 +2,7 @@
 
 #include "common/exception.hpp"
 
+#include <format>
 #include <iostream>
 
 Parser::Parser(const std::string& buffer)
@@ -44,7 +45,7 @@ bool Parser::match(TokenType type) {
     return false;
 }
 
-Token Parser::consume(TokenType type, const char* error) {
+Token Parser::consume(TokenType type, const std::string& error) {
     if (check(type))
         return advance();
 
@@ -129,6 +130,8 @@ Stmt::ptr Parser::parse_stmt() {
         return parse_for_stmt();
     else if (match(TokenType::TT_BREAK))
         return parse_break_stmt();
+    else if (match(TokenType::TT_FUN))
+        return parse_function_stmt("function");
 
     return parse_expr_stmt();
 }
@@ -235,6 +238,29 @@ Stmt::ptr Parser::parse_break_stmt() {
     return nullptr;
 }
 
+Stmt::ptr Parser::parse_function_stmt(const std::string& kind) {
+    Token name = consume(TokenType::TT_IDENTIFIER, "Expect " + kind + " name");
+
+    consume(TokenType::TT_LEFT_PAREN, "Expect '(' after " + kind + " name");
+
+    std::vector<Token> parameters;
+    if (!check(TokenType::TT_RIGHT_PAREN)) {
+        do {
+            if (parameters.size() >= 255) {
+                // TODO: technically should peek() here instead of passing _current
+                throw_error(_current, "Can't have more than 255 parameters.");
+            }
+            parameters.push_back(consume(TokenType::TT_IDENTIFIER, "Expect parameter name"));
+        } while (match(TokenType::TT_COMMA));
+    }
+
+    consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after parameters");
+    consume(TokenType::TT_LEFT_BRACE, "Expect '{' before " + kind + " body");
+
+    auto body = parse_block();
+    return std::make_unique<FunctionStmt>(name, std::move(parameters), std::move(body));
+}
+
 std::vector<Node::ptr> Parser::parse_block() {
     std::vector<Node::ptr> statements;
 
@@ -251,7 +277,7 @@ Node::ptr Parser::parse_expr() {
 }
 
 Node::ptr Parser::parse_assignment_expr() {
-    auto expr = parse_comma_expr();
+    auto expr = parse_conditional_expr();
 
     if (match(TokenType::TT_EQUAL)) {
         Token equals = _previous;
@@ -263,24 +289,6 @@ Node::ptr Parser::parse_assignment_expr() {
         }
 
         throw_error(equals, "Invalid assignment target");
-    }
-
-    return expr;
-}
-
-Node::ptr Parser::parse_comma_expr() {
-    Node::ptr expr = parse_conditional_expr();
-
-    if (check(TokenType::TT_COMMA)) {
-        std::vector<Node::ptr> expressions;
-        expressions.push_back(std::move(expr));
-
-        while (match(TokenType::TT_COMMA)) {
-            Node::ptr next = parse_conditional_expr();
-            expressions.push_back(std::move(next));
-        }
-
-        expr = std::make_unique<CommaExpr>(std::move(expressions));
     }
 
     return expr;

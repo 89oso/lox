@@ -9,7 +9,7 @@ ScriptEnvironment::ScriptEnvironment(ScriptEnvironment* enclosing)
     : _enclosing(enclosing) {
 }
 
-void ScriptEnvironment::assign_variable(const Token& name, ScriptValue& value) {
+void ScriptEnvironment::assign_variable(const Token& name, ScriptObject& value) {
     auto itr = _variables.find(name.value);
     if (itr != _variables.end()) {
         itr->second.value = value.value;
@@ -24,21 +24,19 @@ void ScriptEnvironment::assign_variable(const Token& name, ScriptValue& value) {
     throw RuntimeError(name, "Undefined variable '" + name.value + "'.");
 }
 
-void ScriptEnvironment::define_variable(const std::string& name, ScriptValue& value) {
-    _variables.insert({ name, value });
+void ScriptEnvironment::define_variable(const std::string& name, ScriptObject& value) {
+    _variables[name] = value;
 }
 
-void ScriptEnvironment::define_function(const std::string& name,
-                                        u16 arity,
-                                        ScriptValue::callable_function_type function) {
-    ScriptValue variable;
-    variable.type = ScriptValueType::Callable;
-    variable.value = ScriptValue::Callable(arity, function);
+void ScriptEnvironment::define_function(const std::string& name, u16 arity, ScriptObject::callable_type function) {
+    ScriptObject variable;
+    variable.type = ScriptObjectType::Callable;
+    variable.value = std::make_shared<ScriptObject::Callable>(arity, function);
 
     _variables.insert({ name, variable });
 }
 
-ScriptValue& ScriptEnvironment::find_variable(const Token& name) {
+ScriptObject& ScriptEnvironment::find_variable(const Token& name) {
     auto itr = _variables.find(name.value);
     if (itr != _variables.end())
         return itr->second;

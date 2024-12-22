@@ -35,14 +35,6 @@ void LiteralExpr::accept(Visitor* visitor) {
     visitor->visit_literal_expr(this);
 }
 
-CommaExpr::CommaExpr(std::vector<Node::ptr> expressions)
-    : expressions(std::move(expressions)) {
-}
-
-void CommaExpr::accept(Visitor* visitor) {
-    visitor->visit_comma_expr(this);
-}
-
 LogicalExpr::LogicalExpr(Token op, Node::ptr left, Node::ptr right)
     : op(op),
       left(std::move(left)),
@@ -147,4 +139,14 @@ BreakStmt::BreakStmt() {
 
 void BreakStmt::accept(Visitor* visitor) {
     visitor->visit_break_stmt(this);
+}
+
+FunctionStmt::FunctionStmt(Token name, std::vector<Token> params, std::vector<Node::ptr> body)
+    : name(name),
+      params(params),
+      body(std::move(body)) {
+}
+
+void FunctionStmt::accept(Visitor* visitor) {
+    visitor->visit_function_stmt(this);
 }

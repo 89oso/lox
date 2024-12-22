@@ -9,7 +9,6 @@ struct UnaryExpr;
 struct BinaryExpr;
 struct GroupingExpr;
 struct LiteralExpr;
-struct CommaExpr;
 struct LogicalExpr;
 struct ConditionalExpr;
 struct VariableExpr;
@@ -23,6 +22,7 @@ struct BlockStmt;
 struct IfStmt;
 struct WhileStmt;
 struct BreakStmt;
+struct FunctionStmt;
 
 class Visitor {
 public:
@@ -33,12 +33,12 @@ public:
     virtual void visit_if_stmt(IfStmt* stmt) = 0;
     virtual void visit_while_stmt(WhileStmt* stmt) = 0;
     virtual void visit_break_stmt(BreakStmt* stmt) = 0;
+    virtual void visit_function_stmt(FunctionStmt* stmt) = 0;
 
     virtual void visit_unary_expr(UnaryExpr* node) = 0;
     virtual void visit_binary_expr(BinaryExpr* node) = 0;
     virtual void visit_grouping_expr(GroupingExpr* node) = 0;
     virtual void visit_literal_expr(LiteralExpr* node) = 0;
-    virtual void visit_comma_expr(CommaExpr* node) = 0;
     virtual void visit_logical_expr(LogicalExpr* node) = 0;
     virtual void visit_conditional_expr(ConditionalExpr* node) = 0;
     virtual void visit_variable_expr(VariableExpr* node) = 0;
@@ -54,7 +54,6 @@ struct Node {
         BinaryExpr,
         GroupingExpr,
         LiteralExpr,
-        CommaExpr,
         LogicalExpr,
         ConditionalExpr,
         VariableExpr,
@@ -67,6 +66,7 @@ struct Node {
         IfStmt,
         WhileStmt,
         BreakStmt,
+        FunctionStmt,
     };
 
     virtual ~Node() = default;
@@ -139,17 +139,6 @@ struct LiteralExpr : Expr {
         ~Value() {
         }
     } value;
-};
-
-struct CommaExpr : Expr {
-    explicit CommaExpr(std::vector<Node::ptr> expressions);
-    void accept(Visitor* visitor) override;
-
-    u8 type() override {
-        return Node::Type::CommaExpr;
-    }
-
-    std::vector<Node::ptr> expressions;
 };
 
 struct LogicalExpr : Expr {
@@ -298,4 +287,17 @@ struct BreakStmt : Stmt {
     u8 type() override {
         return Node::Type::BreakStmt;
     }
+};
+
+struct FunctionStmt : Stmt {
+    explicit FunctionStmt(Token name, std::vector<Token> params, std::vector<Node::ptr> body);
+    void accept(Visitor* visitor) override;
+
+    u8 type() override {
+        return Node::Type::FunctionStmt;
+    }
+
+    Token name;
+    std::vector<Token> params;
+    std::vector<Node::ptr> body;
 };

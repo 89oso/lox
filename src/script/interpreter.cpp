@@ -11,9 +11,9 @@ Interpreter::Interpreter() {
     _control_flow_state = ControlFlowState::None;
 
     _global_env.define_function(
-        "builtin_magic_number", 0, [&](Interpreter* interpreter, std::vector<ScriptValue>& arguments) {
-            ScriptValue result;
-            result.type = ScriptValueType::Number;
+        "builtin_magic_number", 0, [&](Interpreter* interpreter, std::vector<ScriptObject>& arguments) {
+            ScriptObject result;
+            result.type = ScriptObjectType::Number;
             result.value = (f64)42;
             return result;
         });
@@ -33,13 +33,13 @@ void Interpreter::visit_print_stmt(PrintStmt* stmt) {
 
     std::cout << "[runtime]: ";
 
-    if (variable.type == ScriptValueType::Nil) {
+    if (variable.type == ScriptObjectType::Nil) {
         std::cout << "nil";
-    } else if (variable.type == ScriptValueType::Boolean) {
+    } else if (variable.type == ScriptObjectType::Boolean) {
         std::cout << (std::get<bool>(variable.value) ? "true" : "false");
-    } else if (variable.type == ScriptValueType::Number) {
+    } else if (variable.type == ScriptObjectType::Number) {
         std::cout << std::get<f64>(variable.value);
-    } else if (variable.type == ScriptValueType::String) {
+    } else if (variable.type == ScriptObjectType::String) {
         std::cout << std::get<std::string>(variable.value);
     }
 
@@ -51,25 +51,26 @@ void Interpreter::visit_expr_stmt(ExprStmt* stmt) {
 }
 
 void Interpreter::visit_var_stmt(VarStmt* stmt) {
-    // value is nil by default (ScriptValue constructor)
-    ScriptValue value;
+    // object is nil by default (ScriptObject constructor)
+    ScriptObject object;
     if (stmt->initializer)
-        value = evaluate(stmt->initializer.get());
+        object = evaluate(stmt->initializer.get());
 
-    _current_env->define_variable(stmt->name.value, value);
+    _current_env->define_variable(stmt->name.value, object);
 }
 
 void Interpreter::visit_block_stmt(BlockStmt* stmt) {
     if (_control_flow_state != ControlFlowState::None)
         return;
-    auto environment = std::make_unique<ScriptEnvironment>(_current_env);
-    execute_block(stmt->statements, std::move(environment));
+
+    auto environment = std::make_shared<ScriptEnvironment>(_current_env);
+    execute_block(stmt->statements, environment);
 }
 
 void Interpreter::visit_if_stmt(IfStmt* stmt) {
-    ScriptValue value = evaluate(stmt->condition.get());
+    ScriptObject object = evaluate(stmt->condition.get());
 
-    if (is_true(value))
+    if (is_true(object))
         execute(stmt->then_branch.get());
     else if (stmt->else_branch)
         execute(stmt->else_branch.get());
@@ -92,13 +93,21 @@ void Interpreter::visit_break_stmt(BreakStmt* stmt) {
     _control_flow_state = ControlFlowState::Break;
 }
 
+void Interpreter::visit_function_stmt(FunctionStmt* stmt) {
+    ScriptObject function;
+    function.type = ScriptObjectType::Callable;
+    function.value = std::make_shared<ScriptFunction>(stmt);
+
+    _current_env->define_variable(stmt->name.value, function);
+}
+
 void Interpreter::visit_unary_expr(UnaryExpr* node) {
     auto variable = evaluate(node->expr.get());
     if (node->op.type == TokenType::TT_MINUS) {
-        assert_value_type(node->op, ScriptValueType::Number, variable);
+        assert_object_type(node->op, ScriptObjectType::Number, variable);
         variable.value = -std::get<f64>(variable.value);
     } else if (node->op.type == TokenType::TT_BANG) {
-        variable.type = ScriptValueType::Boolean;
+        variable.type = ScriptObjectType::Boolean;
         variable.value = !is_true(variable);
     }
 
@@ -109,27 +118,27 @@ void Interpreter::visit_binary_expr(BinaryExpr* node) {
     auto left = evaluate(node->left.get());
     auto right = evaluate(node->right.get());
 
-    ScriptValue variable;
+    ScriptObject variable;
 
     switch (node->op.type) {
     case TokenType::TT_PLUS: {
-        if (left.type == ScriptValueType::Number) {
-            if (right.type == ScriptValueType::String) {
-                variable.type = ScriptValueType::String;
+        if (left.type == ScriptObjectType::Number) {
+            if (right.type == ScriptObjectType::String) {
+                variable.type = ScriptObjectType::String;
                 variable.value = std::format("{}", std::get<f64>(left.value)) + std::get<std::string>(right.value);
                 break;
             }
-            assert_value_type(node->op, ScriptValueType::Number, right);
-            variable.type = ScriptValueType::Number;
+            assert_object_type(node->op, ScriptObjectType::Number, right);
+            variable.type = ScriptObjectType::Number;
             variable.value = std::get<f64>(left.value) + std::get<f64>(right.value);
-        } else if (left.type == ScriptValueType::String) {
-            if (right.type == ScriptValueType::Number) {
-                variable.type = ScriptValueType::String;
+        } else if (left.type == ScriptObjectType::String) {
+            if (right.type == ScriptObjectType::Number) {
+                variable.type = ScriptObjectType::String;
                 variable.value = std::get<std::string>(left.value) + std::format("{}", std::get<f64>(right.value));
                 break;
             }
-            assert_value_type(node->op, ScriptValueType::String, right);
-            variable.type = ScriptValueType::String;
+            assert_object_type(node->op, ScriptObjectType::String, right);
+            variable.type = ScriptObjectType::String;
             variable.value = std::get<std::string>(left.value) + std::get<std::string>(right.value);
         } else {
             throw RuntimeError(node->op, "only numbers and strings are allowed for binary expressions");
@@ -137,52 +146,52 @@ void Interpreter::visit_binary_expr(BinaryExpr* node) {
         }
     } break;
     case TokenType::TT_MINUS:
-        assert_values_type(node->op, ScriptValueType::Number, left, right);
-        variable.type = ScriptValueType::Number;
+        assert_objects_type(node->op, ScriptObjectType::Number, left, right);
+        variable.type = ScriptObjectType::Number;
         variable.value = std::get<f64>(left.value) - std::get<f64>(right.value);
         break;
     case TokenType::TT_STAR:
-        assert_values_type(node->op, ScriptValueType::Number, left, right);
-        variable.type = ScriptValueType::Number;
+        assert_objects_type(node->op, ScriptObjectType::Number, left, right);
+        variable.type = ScriptObjectType::Number;
         variable.value = std::get<f64>(left.value) * std::get<f64>(right.value);
         break;
     case TokenType::TT_SLASH: {
-        assert_values_type(node->op, ScriptValueType::Number, left, right);
+        assert_objects_type(node->op, ScriptObjectType::Number, left, right);
         f64 lhs_value = std::get<f64>(left.value);
         f64 rhs_value = std::get<f64>(right.value);
         if (lhs_value == 0.0 || rhs_value == 0.0) {
             throw RuntimeError(node->op, "division by zero is not allowed");
             return;
         }
-        variable.type = ScriptValueType::Number;
+        variable.type = ScriptObjectType::Number;
         variable.value = lhs_value / rhs_value;
     } break;
     case TokenType::TT_GREATER:
-        assert_values_type(node->op, ScriptValueType::Number, left, right);
-        variable.type = ScriptValueType::Boolean;
+        assert_objects_type(node->op, ScriptObjectType::Number, left, right);
+        variable.type = ScriptObjectType::Boolean;
         variable.value = std::get<f64>(left.value) > std::get<f64>(right.value);
         break;
     case TokenType::TT_GREATER_EQUAL:
-        assert_values_type(node->op, ScriptValueType::Number, left, right);
-        variable.type = ScriptValueType::Boolean;
+        assert_objects_type(node->op, ScriptObjectType::Number, left, right);
+        variable.type = ScriptObjectType::Boolean;
         variable.value = std::get<f64>(left.value) >= std::get<f64>(right.value);
         break;
     case TokenType::TT_LESS:
-        assert_values_type(node->op, ScriptValueType::Number, left, right);
-        variable.type = ScriptValueType::Boolean;
+        assert_objects_type(node->op, ScriptObjectType::Number, left, right);
+        variable.type = ScriptObjectType::Boolean;
         variable.value = std::get<f64>(left.value) < std::get<f64>(right.value);
         break;
     case TokenType::TT_LESS_EQUAL:
-        assert_values_type(node->op, ScriptValueType::Number, left, right);
-        variable.type = ScriptValueType::Boolean;
+        assert_objects_type(node->op, ScriptObjectType::Number, left, right);
+        variable.type = ScriptObjectType::Boolean;
         variable.value = std::get<f64>(left.value) <= std::get<f64>(right.value);
         break;
     case TokenType::TT_BANG_EQUAL:
-        variable.type = ScriptValueType::Boolean;
+        variable.type = ScriptObjectType::Boolean;
         variable.value = !is_equal(left, right);
         break;
     case TokenType::TT_EQUAL_EQUAL:
-        variable.type = ScriptValueType::Boolean;
+        variable.type = ScriptObjectType::Boolean;
         variable.value = is_equal(left, right);
         break;
     default:
@@ -200,30 +209,26 @@ void Interpreter::visit_grouping_expr(GroupingExpr* node) {
 // TODO: strings currently come from the token created by the lexer (std::string)
 //     : maybe an arena for the whole AST would be a good idea?
 void Interpreter::visit_literal_expr(LiteralExpr* node) {
-    ScriptValue variable;
+    ScriptObject variable;
 
     if (node->literal_type == LiteralExpr::LiteralType::Nil) {
-        variable.type = ScriptValueType::Nil;
+        variable.type = ScriptObjectType::Nil;
     } else if (node->literal_type == LiteralExpr::LiteralType::Boolean) {
-        variable.type = ScriptValueType::Boolean;
+        variable.type = ScriptObjectType::Boolean;
         variable.value = node->value.boolean;
     } else if (node->literal_type == LiteralExpr::LiteralType::Number) {
-        variable.type = ScriptValueType::Number;
+        variable.type = ScriptObjectType::Number;
         variable.value = node->value.number;
     } else if (node->literal_type == LiteralExpr::LiteralType::String) {
-        variable.type = ScriptValueType::String;
+        variable.type = ScriptObjectType::String;
         variable.value = node->value.string;
     }
 
     push_variable(variable.type, variable);
 }
 
-void Interpreter::visit_comma_expr(CommaExpr* node) {
-    // TODO
-}
-
 void Interpreter::visit_logical_expr(LogicalExpr* node) {
-    ScriptValue left_result = evaluate(node->left.get());
+    ScriptObject left_result = evaluate(node->left.get());
 
     // TODO: modify the top of the stack? prob not needed
     if (node->op.type == TokenType::TT_OR) {
@@ -238,7 +243,12 @@ void Interpreter::visit_logical_expr(LogicalExpr* node) {
 }
 
 void Interpreter::visit_conditional_expr(ConditionalExpr* node) {
-    // TODO
+    auto result = evaluate(node->expr.get());
+
+    if (is_true(result))
+        evaluate(node->left.get());
+    else
+        evaluate(node->right.get());
 }
 
 void Interpreter::visit_variable_expr(VariableExpr* node) {
@@ -252,28 +262,32 @@ void Interpreter::visit_assignment_expr(AssignmentExpr* node) {
 }
 
 void Interpreter::visit_call_expr(CallExpr* node) {
-    ScriptValue callee = evaluate(node->callee.get());
-    if (callee.type != ScriptValueType::Callable) {
+    ScriptObject callee = evaluate(node->callee.get());
+    if (callee.type != ScriptObjectType::Callable) {
         throw RuntimeError(node->paren, "Can only call functions and classes");
     }
 
-    std::vector<ScriptValue> arguments;
+    std::vector<ScriptObject> arguments;
     for (auto& arg : node->arguments) {
         arguments.push_back(evaluate(arg.get()));
     }
 
-    ScriptValue::Callable callable = std::get<ScriptValue::Callable>(callee.value);
+    auto callable = std::get<std::shared_ptr<ScriptObject::Callable>>(callee.value);
 
-    if (arguments.size() != callable.arity) {
+    if (arguments.size() != callable->arity) {
         throw RuntimeError(node->paren,
-                           std::format("Expected {0} arguments but got {1}.", callable.arity, arguments.size()));
+                           std::format("Expected {0} arguments but got {1}.", callable->arity, arguments.size()));
     }
 
-    auto result = callable.call(this, arguments);
+    auto result = callable->call(this, arguments);
     push_variable(result.type, result);
 }
 
-ScriptValue Interpreter::evaluate(Node* expr) {
+ScriptEnvironment& Interpreter::global_env() {
+    return _global_env;
+}
+
+ScriptObject Interpreter::evaluate(Node* expr) {
     expr->accept(this);
     return _expr_result;
 }
@@ -282,7 +296,7 @@ void Interpreter::execute(Stmt* stmt) {
     stmt->accept(this);
 }
 
-void Interpreter::execute_block(std::vector<Node::ptr>& statements, std::unique_ptr<ScriptEnvironment> environment) {
+void Interpreter::execute_block(std::vector<Node::ptr>& statements, std::shared_ptr<ScriptEnvironment> environment) {
     ScriptEnvironment* previous_env = _current_env;
 
     // defer this
@@ -298,7 +312,7 @@ void Interpreter::execute_block(std::vector<Node::ptr>& statements, std::unique_
     }
 }
 
-void Interpreter::push_variable(u8 type, ScriptValue& value) {
+void Interpreter::push_variable(u8 type, ScriptObject& value) {
     if (type != value.type) {
         // TODO: runtime error
     }
@@ -306,35 +320,35 @@ void Interpreter::push_variable(u8 type, ScriptValue& value) {
     _expr_result = value;
 }
 
-bool Interpreter::is_true(ScriptValue variable) {
-    if (variable.type == ScriptValueType::Nil)
+bool Interpreter::is_true(ScriptObject variable) {
+    if (variable.type == ScriptObjectType::Nil)
         return false;
-    else if (variable.type == ScriptValueType::Boolean)
+    else if (variable.type == ScriptObjectType::Boolean)
         return std::get<bool>(variable.value);
     return true;
 }
 
-bool Interpreter::is_equal(ScriptValue a, ScriptValue b) {
+bool Interpreter::is_equal(ScriptObject a, ScriptObject b) {
     if (a.type != b.type)
         return false;
-    else if (a.type == ScriptValueType::Nil && b.type == ScriptValueType::Nil)
+    else if (a.type == ScriptObjectType::Nil && b.type == ScriptObjectType::Nil)
         return true;
-    else if (a.type == ScriptValueType::Nil)
+    else if (a.type == ScriptObjectType::Nil)
         return false;
-    else if (a.type == ScriptValueType::Number)
+    else if (a.type == ScriptObjectType::Number)
         return std::get<f64>(a.value) == std::get<f64>(b.value);
-    else if (a.type == ScriptValueType::String)
+    else if (a.type == ScriptObjectType::String)
         return std::get<std::string>(a.value) == std::get<std::string>(b.value);
     return false;
 }
 
-void Interpreter::assert_value_type(Token op, ScriptValueType type, ScriptValue& variable) {
+void Interpreter::assert_object_type(Token op, ScriptObjectType type, ScriptObject& variable) {
     if (variable.type == type)
         return;
     throw RuntimeError(op, "variable type mismatch");
 }
 
-void Interpreter::assert_values_type(Token op, ScriptValueType type, ScriptValue& a, ScriptValue& b) {
+void Interpreter::assert_objects_type(Token op, ScriptObjectType type, ScriptObject& a, ScriptObject& b) {
     if (a.type == type && b.type == type)
         return;
     throw RuntimeError(op, "variable type mismatch");
