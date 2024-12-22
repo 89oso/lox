@@ -221,6 +221,14 @@ void AstJsonDumper::visit_assignment_expr(AssignmentExpr* node) {
     write_node("value", node->value.get());
 }
 
+void AstJsonDumper::visit_call_expr(CallExpr* node) {
+    indent++;
+
+    write_str_field("type", "CallExpr");
+    write_node("callee", node->callee.get());
+    write_node_array("arguments", node->arguments);
+}
+
 void AstJsonDumper::write(const std::string& str, bool indentation, bool newline) {
     if (indentation) {
         for (u32 i = 0; i < indent; i++)

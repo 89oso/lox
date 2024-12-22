@@ -14,6 +14,7 @@ struct LogicalExpr;
 struct ConditionalExpr;
 struct VariableExpr;
 struct AssignmentExpr;
+struct CallExpr;
 
 struct PrintStmt;
 struct ExprStmt;
@@ -42,6 +43,7 @@ public:
     virtual void visit_conditional_expr(ConditionalExpr* node) = 0;
     virtual void visit_variable_expr(VariableExpr* node) = 0;
     virtual void visit_assignment_expr(AssignmentExpr* node) = 0;
+    virtual void visit_call_expr(CallExpr* node) = 0;
 };
 
 struct Node {
@@ -57,6 +59,7 @@ struct Node {
         ConditionalExpr,
         VariableExpr,
         AssignmentExpr,
+        CallExpr,
         PrintStmt,
         ExprStmt,
         VarStmt,
@@ -196,6 +199,19 @@ struct AssignmentExpr : Expr {
 
     Token name;
     Node::ptr value;
+};
+
+struct CallExpr : Expr {
+    explicit CallExpr(Node::ptr callee, Token paren, std::vector<Node::ptr> arguments);
+    void accept(Visitor* visitor) override;
+
+    u8 type() override {
+        return Node::Type::CallExpr;
+    }
+
+    Node::ptr callee;
+    Token paren;
+    std::vector<Node::ptr> arguments;
 };
 
 struct Stmt : public Node {

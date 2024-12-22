@@ -387,7 +387,37 @@ Node::ptr Parser::parse_unary_expr() {
         return std::make_unique<UnaryExpr>(op, std::move(expr));
     }
 
-    return parse_primary_expr();
+    return parse_call_expr();
+}
+
+Node::ptr Parser::parse_call_expr() {
+    Node::ptr expr = parse_primary_expr();
+
+    while (true) {
+        if (match(TokenType::TT_LEFT_PAREN)) {
+            expr = parse_call_expr_arguments(std::move(expr));
+        } else {
+            break;
+        }
+    }
+
+    return expr;
+}
+
+Node::ptr Parser::parse_call_expr_arguments(Node::ptr callee) {
+    std::vector<Node::ptr> arguments;
+    if (!check(TokenType::TT_RIGHT_PAREN)) {
+        do {
+            if (arguments.size() >= 255) {
+                // TODO: technically should peek() here instead of passing _current
+                throw_error(_current, "Can't have more than 255 arguments.");
+            }
+            arguments.push_back(std::move(parse_expr()));
+        } while (match(TokenType::TT_COMMA));
+    }
+
+    Token closing_paren = consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after arguments");
+    return std::make_unique<CallExpr>(std::move(callee), closing_paren, std::move(arguments));
 }
 
 Node::ptr Parser::parse_primary_expr() {

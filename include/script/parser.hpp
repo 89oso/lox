@@ -62,5 +62,7 @@ private:
     Node::ptr parse_term_expr();
     Node::ptr parse_factor_expr();
     Node::ptr parse_unary_expr();
+    Node::ptr parse_call_expr();
+    Node::ptr parse_call_expr_arguments(Node::ptr callee);
     Node::ptr parse_primary_expr();
 };

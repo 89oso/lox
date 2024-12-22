@@ -80,6 +80,16 @@ void AssignmentExpr::accept(Visitor* visitor) {
     visitor->visit_assignment_expr(this);
 }
 
+CallExpr::CallExpr(Node::ptr callee, Token paren, std::vector<Node::ptr> arguments)
+    : callee(std::move(callee)),
+      paren(paren),
+      arguments(std::move(arguments)) {
+}
+
+void CallExpr::accept(Visitor* visitor) {
+    visitor->visit_call_expr(this);
+}
+
 PrintStmt::PrintStmt(Node::ptr expr)
     : expr(std::move(expr)) {
 }

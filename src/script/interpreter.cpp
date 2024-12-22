@@ -2,12 +2,21 @@
 #include "common/exception.hpp"
 #include "common/finally.hpp"
 
+#include <chrono>
 #include <iostream>
 #include <format>
+
+double mark_start = 0;
 
 Interpreter::Interpreter() {
     _current_env = &_global_env;
     _control_flow_signal = ControlFlowSignal::None;
+
+    _global_env.define_function(
+        "builtin_magic_number", 0, [&](Interpreter* interpreter, std::vector<ScriptValue>& arguments) {
+            _expr_value.type = ScriptValueType::Number;
+            _expr_value.value = static_cast<f64>(42);
+        });
 }
 
 void Interpreter::interpret(Node* node) {
@@ -241,6 +250,27 @@ void Interpreter::visit_assignment_expr(AssignmentExpr* node) {
     _current_env->assign_variable(node->name, value);
 }
 
+void Interpreter::visit_call_expr(CallExpr* node) {
+    ScriptValue callee = evaluate(node->callee.get());
+    if (callee.type != ScriptValueType::Callable) {
+        throw RuntimeError(node->paren, "Can only call functions and classes");
+    }
+
+    std::vector<ScriptValue> arguments;
+    for (auto& arg : node->arguments) {
+        arguments.push_back(evaluate(arg.get()));
+    }
+
+    ScriptCallable function = std::get<ScriptCallable>(callee.value);
+
+    if (arguments.size() != function.arity) {
+        throw new RuntimeError(node->paren,
+                               std::format("Expected {0} arguments but got {1}.", function.arity, arguments.size()));
+    }
+
+    function.call(this, arguments);
+}
+
 ScriptValue& Interpreter::evaluate(Node* expr) {
     expr->accept(this);
     return _expr_value;
@@ -282,9 +312,9 @@ bool Interpreter::is_equal(ScriptValue a, ScriptValue b) {
     else if (a.type == ScriptValueType::Nil)
         return false;
     else if (a.type == ScriptValueType::Number)
-        return a.value == b.value;
+        return std::get<f64>(a.value) == std::get<f64>(b.value);
     else if (a.type == ScriptValueType::String)
-        return a.value == b.value;
+        return std::get<std::string>(a.value) == std::get<std::string>(b.value);
     return false;
 }
 

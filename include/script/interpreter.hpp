@@ -31,6 +31,7 @@ public:
     void visit_conditional_expr(ConditionalExpr* node) override;
     void visit_variable_expr(VariableExpr* node) override;
     void visit_assignment_expr(AssignmentExpr* node) override;
+    void visit_call_expr(CallExpr* node) override;
 
 private:
     ScriptEnvironment _global_env;
