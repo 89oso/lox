@@ -7,3 +7,5 @@ fun test(a, b, c) {
 var b = "nope";
 
 test(0 == 1 ? 42 : 0, "yup", "hello world");
+
+print test;

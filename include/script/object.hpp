@@ -22,22 +22,26 @@ struct ScriptObject {
     ScriptObject();
 
     struct Callable {
+        using ptr = std::shared_ptr<Callable>;
+
         Callable();
         explicit Callable(u16 arity, callable_type function);
 
         virtual ScriptObject call(Interpreter* interpreter, std::vector<ScriptObject>& arguments);
+        virtual std::string to_string();
 
         u16 arity;
         callable_type function;
     };
 
     u8 type;
-    std::variant<bool, double, std::string, std::shared_ptr<Callable>> value;
+    std::variant<bool, double, std::string, Callable::ptr> value;
 };
 
 struct ScriptFunction : ScriptObject::Callable {
     ScriptFunction(FunctionStmt* decl);
     ScriptObject call(Interpreter* interpreter, std::vector<ScriptObject>& arguments) override;
+    std::string to_string() override;
 
     FunctionStmt* decl;
 };

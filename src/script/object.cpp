@@ -21,6 +21,10 @@ ScriptObject ScriptObject::Callable::call(Interpreter* interpreter, std::vector<
     return function(interpreter, arguments);
 }
 
+std::string ScriptObject::Callable::to_string() {
+    return "<builtin_fn>";
+}
+
 ScriptFunction::ScriptFunction(FunctionStmt* decl)
     : decl(decl) {
     arity = decl->params.size();
@@ -40,4 +44,8 @@ ScriptObject ScriptFunction::call(Interpreter* interpreter, std::vector<ScriptOb
     result.type = ScriptObjectType::Nil;
 
     return result;
+}
+
+std::string ScriptFunction::to_string() {
+    return "<fn " + decl->name.value + ">";
 }

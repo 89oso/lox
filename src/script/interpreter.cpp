@@ -41,6 +41,9 @@ void Interpreter::visit_print_stmt(PrintStmt* stmt) {
         std::cout << std::get<f64>(variable.value);
     } else if (variable.type == ScriptObjectType::String) {
         std::cout << std::get<std::string>(variable.value);
+    } else if (variable.type == ScriptObjectType::Callable) {
+        auto callable = std::get<ScriptObject::Callable::ptr>(variable.value);
+        std::cout << callable->to_string();
     }
 
     std::cout << "\n";
@@ -272,7 +275,7 @@ void Interpreter::visit_call_expr(CallExpr* node) {
         arguments.push_back(evaluate(arg.get()));
     }
 
-    auto callable = std::get<std::shared_ptr<ScriptObject::Callable>>(callee.value);
+    auto callable = std::get<ScriptObject::Callable::ptr>(callee.value);
 
     if (arguments.size() != callable->arity) {
         throw RuntimeError(node->paren,
