@@ -101,7 +101,7 @@ void Interpreter::visit_break_stmt(BreakStmt* stmt) {
 void Interpreter::visit_function_stmt(FunctionStmt* stmt) {
     ScriptObject function;
     function.type = ScriptObjectType::Callable;
-    function.value = std::make_shared<ScriptFunction>(stmt);
+    function.value = std::make_shared<ScriptFunction>(stmt, std::make_shared<ScriptEnvironment>(*_current_env));
 
     _current_env->define_variable(stmt->name.value, function);
 }
@@ -112,7 +112,6 @@ void Interpreter::visit_return_stmt(ReturnStmt* stmt) {
     }
 
     _control_flow_state = ControlFlowState::Return;
-    std::cout << "setting return state\n";
 }
 
 void Interpreter::visit_unary_expr(UnaryExpr* node) {

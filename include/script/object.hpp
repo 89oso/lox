@@ -38,10 +38,13 @@ struct ScriptObject {
     std::variant<bool, double, std::string, Callable::ptr> value;
 };
 
+struct ScriptEnvironment;
+
 struct ScriptFunction : ScriptObject::Callable {
-    ScriptFunction(FunctionStmt* decl);
+    ScriptFunction(FunctionStmt* decl, std::shared_ptr<ScriptEnvironment> closure);
     ScriptObject call(Interpreter* interpreter, std::vector<ScriptObject>& arguments) override;
     std::string to_string() override;
 
     FunctionStmt* decl;
+    std::shared_ptr<ScriptEnvironment> closure;
 };

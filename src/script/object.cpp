@@ -25,20 +25,20 @@ std::string ScriptObject::Callable::to_string() {
     return "<builtin_fn>";
 }
 
-ScriptFunction::ScriptFunction(FunctionStmt* decl)
-    : decl(decl) {
+ScriptFunction::ScriptFunction(FunctionStmt* decl, std::shared_ptr<ScriptEnvironment> closure)
+    : decl(decl),
+      closure(closure) {
     arity = decl->params.size();
 }
 
 ScriptObject ScriptFunction::call(Interpreter* interpreter, std::vector<ScriptObject>& arguments) {
-    ScriptEnvironment environment = interpreter->global_env();
+    std::shared_ptr<ScriptEnvironment> environment = closure;
 
     for (int i = 0; i < decl->params.size(); i++) {
-        environment.define_variable(decl->params.at(i).value, arguments.at(i));
+        environment->define_variable(decl->params.at(i).value, arguments.at(i));
     }
 
-    auto boxed_environment = std::make_shared<ScriptEnvironment>(environment);
-    interpreter->execute_block(decl->body, boxed_environment);
+    interpreter->execute_block(decl->body, environment);
 
     if (interpreter->control_flow_state() == ControlFlowState::Return) {
         interpreter->set_control_flow_state(ControlFlowState::None);
