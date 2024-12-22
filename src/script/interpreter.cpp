@@ -6,16 +6,16 @@
 #include <iostream>
 #include <format>
 
-double mark_start = 0;
-
 Interpreter::Interpreter() {
     _current_env = &_global_env;
-    _control_flow_signal = ControlFlowSignal::None;
+    _control_flow_state = ControlFlowState::None;
 
     _global_env.define_function(
         "builtin_magic_number", 0, [&](Interpreter* interpreter, std::vector<ScriptValue>& arguments) {
-            _expr_value.type = ScriptValueType::Number;
-            _expr_value.value = static_cast<f64>(42);
+            ScriptValue result;
+            result.type = ScriptValueType::Number;
+            result.value = (f64)42;
+            return result;
         });
 }
 
@@ -60,7 +60,7 @@ void Interpreter::visit_var_stmt(VarStmt* stmt) {
 }
 
 void Interpreter::visit_block_stmt(BlockStmt* stmt) {
-    if (_control_flow_signal != ControlFlowSignal::None)
+    if (_control_flow_state != ControlFlowState::None)
         return;
     auto environment = std::make_unique<ScriptEnvironment>(_current_env);
     execute_block(stmt->statements, std::move(environment));
@@ -81,15 +81,15 @@ void Interpreter::visit_while_stmt(WhileStmt* stmt) {
     while (is_true(evaluate(condition))) {
         execute(stmt->body.get());
 
-        if (_control_flow_signal == ControlFlowSignal::Break) {
-            _control_flow_signal = ControlFlowSignal::None;
+        if (_control_flow_state == ControlFlowState::Break) {
+            _control_flow_state = ControlFlowState::None;
             break;
         }
     }
 }
 
 void Interpreter::visit_break_stmt(BreakStmt* stmt) {
-    _control_flow_signal = ControlFlowSignal::Break;
+    _control_flow_state = ControlFlowState::Break;
 }
 
 void Interpreter::visit_unary_expr(UnaryExpr* node) {
@@ -102,7 +102,7 @@ void Interpreter::visit_unary_expr(UnaryExpr* node) {
         variable.value = !is_true(variable);
     }
 
-    _expr_value = variable;
+    push_variable(variable.type, variable);
 }
 
 void Interpreter::visit_binary_expr(BinaryExpr* node) {
@@ -190,7 +190,7 @@ void Interpreter::visit_binary_expr(BinaryExpr* node) {
         break;
     }
 
-    _expr_value = variable;
+    push_variable(variable.type, variable);
 }
 
 void Interpreter::visit_grouping_expr(GroupingExpr* node) {
@@ -215,7 +215,7 @@ void Interpreter::visit_literal_expr(LiteralExpr* node) {
         variable.value = node->value.string;
     }
 
-    _expr_value = variable;
+    push_variable(variable.type, variable);
 }
 
 void Interpreter::visit_comma_expr(CommaExpr* node) {
@@ -242,7 +242,8 @@ void Interpreter::visit_conditional_expr(ConditionalExpr* node) {
 }
 
 void Interpreter::visit_variable_expr(VariableExpr* node) {
-    _expr_value = _current_env->find_variable(node->name);
+    auto result = _current_env->find_variable(node->name);
+    push_variable(result.type, result);
 }
 
 void Interpreter::visit_assignment_expr(AssignmentExpr* node) {
@@ -261,19 +262,20 @@ void Interpreter::visit_call_expr(CallExpr* node) {
         arguments.push_back(evaluate(arg.get()));
     }
 
-    ScriptCallable function = std::get<ScriptCallable>(callee.value);
+    ScriptValue::Callable callable = std::get<ScriptValue::Callable>(callee.value);
 
-    if (arguments.size() != function.arity) {
-        throw new RuntimeError(node->paren,
-                               std::format("Expected {0} arguments but got {1}.", function.arity, arguments.size()));
+    if (arguments.size() != callable.arity) {
+        throw RuntimeError(node->paren,
+                           std::format("Expected {0} arguments but got {1}.", callable.arity, arguments.size()));
     }
 
-    function.call(this, arguments);
+    auto result = callable.call(this, arguments);
+    push_variable(result.type, result);
 }
 
-ScriptValue& Interpreter::evaluate(Node* expr) {
+ScriptValue Interpreter::evaluate(Node* expr) {
     expr->accept(this);
-    return _expr_value;
+    return _expr_result;
 }
 
 void Interpreter::execute(Stmt* stmt) {
@@ -291,9 +293,17 @@ void Interpreter::execute_block(std::vector<Node::ptr>& statements, std::unique_
     _current_env = environment.get();
     for (auto& stmt : statements) {
         execute(reinterpret_cast<Stmt*>(stmt.get()));
-        if (_control_flow_signal != ControlFlowSignal::None)
+        if (_control_flow_state != ControlFlowState::None)
             break;
     }
+}
+
+void Interpreter::push_variable(u8 type, ScriptValue& value) {
+    if (type != value.type) {
+        // TODO: runtime error
+    }
+
+    _expr_result = value;
 }
 
 bool Interpreter::is_true(ScriptValue variable) {

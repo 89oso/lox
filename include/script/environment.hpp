@@ -12,7 +12,7 @@ public:
 
     void assign_variable(const Token& name, ScriptValue& value);
     void define_variable(const std::string& name, ScriptValue& value);
-    void define_function(const std::string& name, u16 arity, ScriptCallable::function_type function);
+    void define_function(const std::string& name, u16 arity, ScriptValue::callable_function_type function);
     ScriptValue& find_variable(const Token& name);
 
 private:

@@ -280,19 +280,19 @@ void AstJsonDumper::write_node(const std::string& name, Node* node) {
 
 void AstJsonDumper::write_node_array(const std::string& name, std::vector<Node::ptr>& nodes) {
     write("\"" + name + "\"", true);
-    write(": {", false, true);
 
-    u32 indent_save = indent;
-
-    indent++;
-
-    u32 index = 0;
-    for (auto& node : nodes) {
-        write_node("node" + std::to_string(index), node.get());
-        index++;
+    if (nodes.empty()) {
+        write(": null,", false, true);
+    } else {
+        write(": {", false, true);
+        u32 indent_save = indent;
+        indent++;
+        u32 index = 0;
+        for (auto& node : nodes) {
+            write_node("node" + std::to_string(index), node.get());
+            index++;
+        }
+        indent = indent_save;
+        write("},", true, true);
     }
-
-    indent = indent_save;
-
-    write("},", true, true);
 }

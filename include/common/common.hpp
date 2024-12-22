@@ -22,3 +22,19 @@ typedef double f64;
 
 #include <memory>
 #include <string>
+
+template<typename T>
+using Arc = std::shared_ptr<T>;
+
+template<typename T, typename... TArgs>
+constexpr Arc<T> create_arc(TArgs&&... args) {
+    return std::make_unique<T>(std::forward<TArgs>(args)...);
+}
+
+template<typename T>
+using Box = std::unique_ptr<T>;
+
+template<typename T, typename... TArgs>
+constexpr Box<T> create_box(TArgs&&... args) {
+    return std::make_unique<T>(std::forward<TArgs>(args)...);
+}

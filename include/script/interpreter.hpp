@@ -3,7 +3,7 @@
 #include "ast.hpp"
 #include "environment.hpp"
 
-enum class ControlFlowSignal {
+enum class ControlFlowState {
     None,
     Break,
 };
@@ -36,16 +36,14 @@ public:
 private:
     ScriptEnvironment _global_env;
     ScriptEnvironment* _current_env;
-
-    // value from latest evaluated expression
-    ScriptValue _expr_value;
-
-    ControlFlowSignal _control_flow_signal;
+    ScriptValue _expr_result;
+    ControlFlowState _control_flow_state;
 
     // TODO: change places that use Node for type when Expr should be explicitly stated
-    ScriptValue& evaluate(Node* expr);
+    ScriptValue evaluate(Node* expr);
     void execute(Stmt* stmt);
     void execute_block(std::vector<Node::ptr>& statements, std::unique_ptr<ScriptEnvironment> environment);
+    void push_variable(u8 type, ScriptValue& value);
 
     bool is_true(ScriptValue value);
     bool is_equal(ScriptValue a, ScriptValue b);

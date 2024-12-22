@@ -17,28 +17,29 @@ enum ScriptValueType : u8 {
 struct Interpreter;
 struct ScriptValue;
 
-struct ScriptCallable {
-    using function_type = std::function<void(Interpreter* interpreter, std::vector<ScriptValue>& arguments)>;
-
-    explicit ScriptCallable(u16 arity, function_type function)
-        : arity(0),
-          function(function) {
-    }
-
-    void call(Interpreter* interpreter, std::vector<ScriptValue>& arguments) {
-        function(interpreter, arguments);
-    }
-
-    // std::string name;
-    u16 arity;
-    function_type function;
-};
-
 struct ScriptValue {
+    using callable_function_type =
+        std::function<ScriptValue(Interpreter* interpreter, std::vector<ScriptValue>& arguments)>;
+
     ScriptValue()
         : type(ScriptValueType::Nil) {
     }
 
+    struct Callable {
+
+        explicit Callable(u16 arity, callable_function_type function)
+            : arity(0),
+              function(function) {
+        }
+
+        ScriptValue call(Interpreter* interpreter, std::vector<ScriptValue>& arguments) {
+            return function(interpreter, arguments);
+        }
+
+        u16 arity;
+        callable_function_type function;
+    };
+
     u8 type;
-    std::variant<bool, double, std::string, ScriptCallable> value;
+    std::variant<bool, double, std::string, Callable> value;
 };

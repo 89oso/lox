@@ -28,10 +28,12 @@ void ScriptEnvironment::define_variable(const std::string& name, ScriptValue& va
     _variables.insert({ name, value });
 }
 
-void ScriptEnvironment::define_function(const std::string& name, u16 arity, ScriptCallable::function_type function) {
+void ScriptEnvironment::define_function(const std::string& name,
+                                        u16 arity,
+                                        ScriptValue::callable_function_type function) {
     ScriptValue variable;
     variable.type = ScriptValueType::Callable;
-    variable.value = ScriptCallable(arity, function);
+    variable.value = ScriptValue::Callable(arity, function);
 
     _variables.insert({ name, variable });
 }
