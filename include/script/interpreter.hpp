@@ -6,6 +6,7 @@
 enum class ControlFlowState {
     None,
     Break,
+    Return,
 };
 
 class Interpreter : public Visitor {
@@ -22,6 +23,7 @@ public:
     void visit_while_stmt(WhileStmt* stmt) override;
     void visit_break_stmt(BreakStmt* stmt) override;
     void visit_function_stmt(FunctionStmt* stmt) override;
+    void visit_return_stmt(ReturnStmt* stmt) override;
 
     void visit_unary_expr(UnaryExpr* node) override;
     void visit_binary_expr(BinaryExpr* node) override;
@@ -34,6 +36,12 @@ public:
     void visit_call_expr(CallExpr* node) override;
 
     ScriptEnvironment& global_env();
+
+    ControlFlowState control_flow_state();
+    void set_control_flow_state(ControlFlowState state);
+
+    ScriptObject& expr_result();
+
     void execute_block(std::vector<Node::ptr>& statements, std::shared_ptr<ScriptEnvironment> environment);
 
 private:

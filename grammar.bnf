@@ -4,13 +4,15 @@ decl                  ::= var_decl | fun_decl | stmt ;
 fun_decl              ::= "fun" function ;
 var_decl              ::= "var" IDENTIFIER ( "=" expr )? ";" ;
 
-stmt                  ::= expr_stmt | print_stmt | block_stmt | if_stmt | while_stmt | for_stmt;
+stmt                  ::= expr_stmt | print_stmt | block_stmt | if_stmt | while_stmt | for_stmt | break_stmt | return_stmt;
 expr_stmt             ::= expr ";" ;
 print_stmt            ::= "print" expr ";" ;
 block_stmt            ::= "{" decl* "}" ;
 if_stmt               ::= "if" "(" expr ")" stmt ( "else" stmt)? ;
 while_stmt            ::= "while" "(" expr ")" stmt ;
 for_stmt              ::= "for" "(" ( var_decl | expr_stmt | ";" ) expr? ";" expr? ")" stmt ;
+break_stmt            ::= "break" ";" ;
+return_stmt           ::= "return" expr? ";" ;
 
 expr                  ::= assignment_expr
 assignment_expr       ::= IDENTIFIER '=' assignment_expr | conditional_expr;
@@ -25,9 +27,9 @@ unary_expr            ::= ( '!' | '-' ) unary_expr | call_expr ;
 call_expr             ::= primary_expr ( "(" arguments? ")" )* ;
 primary_expr          ::= NUMBER | STRING | "true" | "false" | "nil" | "(" expr ")" IDENTIFIER ;
 
-arguments        ::= expr ( "," expr )* ;
-function         ::= IDENTIFIER "(" parameters? ")" block ;
-parameters       ::= IDENTIFIER ( "," IDENTIFIER )* ;
+arguments             ::= expr ( "," expr )* ;
+function              ::= IDENTIFIER "(" parameters? ")" block ;
+parameters            ::= IDENTIFIER ( "," IDENTIFIER )* ;
 
 NUMBER                ::= DIGIT+ ( "." DIGIT+ )? ;
 STRING                ::= '"' <any_except('"')>* '"' ;

@@ -82,6 +82,13 @@ void AstJsonDumper::visit_function_stmt(FunctionStmt* stmt) {
     write_node_array("body", stmt->body);
 }
 
+void AstJsonDumper::visit_return_stmt(ReturnStmt* stmt) {
+    indent++;
+
+    write_str_field("type", "ReturnStmt");
+    write_node("expr", stmt->expr.get());
+}
+
 void AstJsonDumper::visit_unary_expr(UnaryExpr* node) {
     indent++;
 

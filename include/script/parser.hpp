@@ -49,6 +49,7 @@ private:
     Stmt::ptr parse_for_stmt();
     Stmt::ptr parse_break_stmt();
     Stmt::ptr parse_function_stmt(const std::string& kind);
+    Stmt::ptr parse_return_stmt();
 
     std::vector<Node::ptr> parse_block();
 

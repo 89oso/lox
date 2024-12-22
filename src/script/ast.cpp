@@ -150,3 +150,12 @@ FunctionStmt::FunctionStmt(Token name, std::vector<Token> params, std::vector<No
 void FunctionStmt::accept(Visitor* visitor) {
     visitor->visit_function_stmt(this);
 }
+
+ReturnStmt::ReturnStmt(Token keyword, Node::ptr expr)
+    : keyword(keyword),
+      expr(std::move(expr)) {
+}
+
+void ReturnStmt::accept(Visitor* visitor) {
+    visitor->visit_return_stmt(this);
+}

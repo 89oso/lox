@@ -40,9 +40,13 @@ ScriptObject ScriptFunction::call(Interpreter* interpreter, std::vector<ScriptOb
     auto boxed_environment = std::make_shared<ScriptEnvironment>(environment);
     interpreter->execute_block(decl->body, boxed_environment);
 
+    if (interpreter->control_flow_state() == ControlFlowState::Return) {
+        interpreter->set_control_flow_state(ControlFlowState::None);
+        return interpreter->expr_result();
+    }
+
     ScriptObject result;
     result.type = ScriptObjectType::Nil;
-
     return result;
 }
 

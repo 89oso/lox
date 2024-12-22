@@ -16,6 +16,7 @@ public:
     void visit_while_stmt(WhileStmt* stmt) override;
     void visit_break_stmt(BreakStmt* stmt) override;
     void visit_function_stmt(FunctionStmt* stmt) override;
+    void visit_return_stmt(ReturnStmt* stmt) override;
 
     void visit_unary_expr(UnaryExpr* node) override;
     void visit_binary_expr(BinaryExpr* node) override;

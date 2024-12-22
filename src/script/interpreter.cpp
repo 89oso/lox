@@ -85,8 +85,10 @@ void Interpreter::visit_while_stmt(WhileStmt* stmt) {
     while (is_true(evaluate(condition))) {
         execute(stmt->body.get());
 
-        if (_control_flow_state == ControlFlowState::Break) {
-            _control_flow_state = ControlFlowState::None;
+        if (_control_flow_state == ControlFlowState::Break || _control_flow_state == ControlFlowState::Return) {
+            if (_control_flow_state == ControlFlowState::Break) {
+                _control_flow_state = ControlFlowState::None;
+            }
             break;
         }
     }
@@ -102,6 +104,15 @@ void Interpreter::visit_function_stmt(FunctionStmt* stmt) {
     function.value = std::make_shared<ScriptFunction>(stmt);
 
     _current_env->define_variable(stmt->name.value, function);
+}
+
+void Interpreter::visit_return_stmt(ReturnStmt* stmt) {
+    if (stmt->expr) {
+        evaluate(stmt->expr.get());
+    }
+
+    _control_flow_state = ControlFlowState::Return;
+    std::cout << "setting return state\n";
 }
 
 void Interpreter::visit_unary_expr(UnaryExpr* node) {
@@ -288,6 +299,18 @@ void Interpreter::visit_call_expr(CallExpr* node) {
 
 ScriptEnvironment& Interpreter::global_env() {
     return _global_env;
+}
+
+ControlFlowState Interpreter::control_flow_state() {
+    return _control_flow_state;
+}
+
+void Interpreter::set_control_flow_state(ControlFlowState state) {
+    _control_flow_state = state;
+}
+
+ScriptObject& Interpreter::expr_result() {
+    return _expr_result;
 }
 
 ScriptObject Interpreter::evaluate(Node* expr) {

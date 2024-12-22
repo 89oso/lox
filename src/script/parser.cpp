@@ -132,6 +132,8 @@ Stmt::ptr Parser::parse_stmt() {
         return parse_break_stmt();
     else if (match(TokenType::TT_FUN))
         return parse_function_stmt("function");
+    else if (match(TokenType::TT_RETURN))
+        return parse_return_stmt();
 
     return parse_expr_stmt();
 }
@@ -259,6 +261,18 @@ Stmt::ptr Parser::parse_function_stmt(const std::string& kind) {
 
     auto body = parse_block();
     return std::make_unique<FunctionStmt>(name, std::move(parameters), std::move(body));
+}
+
+Stmt::ptr Parser::parse_return_stmt() {
+    Token keyword = _previous;
+
+    Node::ptr value = nullptr;
+    if (!check(TokenType::TT_SEMICOLON)) {
+        value = parse_expr();
+    }
+
+    consume(TokenType::TT_SEMICOLON, "Expect ';' after return value");
+    return std::make_unique<ReturnStmt>(keyword, std::move(value));
 }
 
 std::vector<Node::ptr> Parser::parse_block() {
