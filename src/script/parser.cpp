@@ -2,7 +2,6 @@
 
 #include "common/exception.hpp"
 
-#include <format>
 #include <iostream>
 
 Parser::Parser(const std::string& buffer)

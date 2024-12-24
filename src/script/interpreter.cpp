@@ -4,7 +4,8 @@
 
 #include <chrono>
 #include <iostream>
-#include <format>
+#include <fmt/core.h>
+// #include <format>
 
 Interpreter::Interpreter() {
     _current_env = &_global_env;
@@ -138,7 +139,7 @@ void Interpreter::visit_binary_expr(BinaryExpr* node) {
         if (left.type == ScriptObjectType::Number) {
             if (right.type == ScriptObjectType::String) {
                 variable.type = ScriptObjectType::String;
-                variable.value = std::format("{}", std::get<f64>(left.value)) + std::get<std::string>(right.value);
+                variable.value = fmt::format("{}", std::get<f64>(left.value)) + std::get<std::string>(right.value);
                 break;
             }
             assert_object_type(node->op, ScriptObjectType::Number, right);
@@ -147,7 +148,7 @@ void Interpreter::visit_binary_expr(BinaryExpr* node) {
         } else if (left.type == ScriptObjectType::String) {
             if (right.type == ScriptObjectType::Number) {
                 variable.type = ScriptObjectType::String;
-                variable.value = std::get<std::string>(left.value) + std::format("{}", std::get<f64>(right.value));
+                variable.value = std::get<std::string>(left.value) + fmt::format("{}", std::get<f64>(right.value));
                 break;
             }
             assert_object_type(node->op, ScriptObjectType::String, right);
@@ -289,7 +290,7 @@ void Interpreter::visit_call_expr(CallExpr* node) {
 
     if (arguments.size() != callable->arity) {
         throw RuntimeError(node->paren,
-                           std::format("Expected {0} arguments but got {1}.", callable->arity, arguments.size()));
+                           fmt::format("Expected {0} arguments but got {1}.", callable->arity, arguments.size()));
     }
 
     auto result = callable->call(this, arguments);

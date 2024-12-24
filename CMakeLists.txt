@@ -4,6 +4,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt
+    GIT_TAG        e69e5f977d458f2650bb346dadf2ad30c5320281) # 10.2.1
+
+FetchContent_MakeAvailable(fmt)
+
 project(lox LANGUAGES CXX)
 
 add_executable(lox
@@ -21,3 +30,4 @@ add_executable(lox
 )
 
 target_include_directories(lox PRIVATE include/)
+target_link_libraries(lox fmt::fmt)

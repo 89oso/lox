@@ -1,6 +1,8 @@
 #include "script/ast_json_dumper.hpp"
 
-#include <format>
+// #include <format>
+#include <fmt/core.h>
+
 #include <iostream>
 
 AstJsonDumper::AstJsonDumper()
@@ -266,7 +268,7 @@ void AstJsonDumper::write_int_field(const std::string& field, const i32 value) {
 void AstJsonDumper::write_double_field(const std::string& field, const f64 value) {
     write("\"" + field + "\"", true);
     write(": ");
-    write("\"" + std::format("{}", value) + "\"", false);
+    write("\"" + fmt::format("{}", value) + "\"", false);
     write(",", false, true);
 }
 

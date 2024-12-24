@@ -1,5 +1,7 @@
 #include "script/token.hpp"
+
 #include <iostream>
+#include <fmt/core.h>
 
 const char* Token::reserved_keywords[] = {
     "and",   "class",  "else",  "false", "fun",  "for", "if",    "nil",   "or",
@@ -76,7 +78,7 @@ std::string Token::to_string() {
     case TokenType::TT_STRING:
         return value;
     case TokenType::TT_NUMBER:
-        return std::format("{}", value);
+        return fmt::format("{}", value);
     case TokenType::TT_EOF:
         return "<EOF>";
     default:
