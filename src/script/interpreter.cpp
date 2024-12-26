@@ -229,13 +229,13 @@ void Interpreter::visit_literal_expr(LiteralExpr* node) {
         variable.type = ScriptObjectType::Nil;
     } else if (node->literal_type == LiteralExpr::LiteralType::Boolean) {
         variable.type = ScriptObjectType::Boolean;
-        variable.value = node->value.boolean;
+        variable.value = std::get<bool>(node->value);
     } else if (node->literal_type == LiteralExpr::LiteralType::Number) {
         variable.type = ScriptObjectType::Number;
-        variable.value = node->value.number;
+        variable.value = std::get<f64>(node->value);
     } else if (node->literal_type == LiteralExpr::LiteralType::String) {
         variable.type = ScriptObjectType::String;
-        variable.value = node->value.string;
+        variable.value = std::get<std::string>(node->value);
     }
 
     push_variable(variable.type, variable);

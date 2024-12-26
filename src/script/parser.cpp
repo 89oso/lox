@@ -213,7 +213,7 @@ Stmt::ptr Parser::parse_for_stmt() {
     if (!condition) {
         condition = std::make_unique<LiteralExpr>(LiteralExpr::LiteralType::Boolean);
         LiteralExpr* literal_expr = reinterpret_cast<LiteralExpr*>(condition.get());
-        literal_expr->value.boolean = true;
+        literal_expr->value = true;
     }
 
     body = std::make_unique<WhileStmt>(std::move(condition), std::move(body));
@@ -444,21 +444,21 @@ Node::ptr Parser::parse_call_expr_arguments(Node::ptr callee) {
 Node::ptr Parser::parse_primary_expr() {
     if (match(TokenType::TT_FALSE)) {
         auto node = std::make_unique<LiteralExpr>(LiteralExpr::LiteralType::Boolean);
-        node->value.boolean = false;
+        node->value = false;
         return node;
     } else if (match(TokenType::TT_TRUE)) {
         auto node = std::make_unique<LiteralExpr>(LiteralExpr::LiteralType::Boolean);
-        node->value.boolean = true;
+        node->value = true;
         return node;
     } else if (match(TokenType::TT_NIL)) {
         return std::make_unique<LiteralExpr>(LiteralExpr::LiteralType::Nil);
     } else if (match(TokenType::TT_NUMBER)) {
         auto node = std::make_unique<LiteralExpr>(LiteralExpr::LiteralType::Number);
-        node->value.number = std::stod(_previous.value);
+        node->value = std::stod(_previous.value);
         return node;
     } else if (match(TokenType::TT_STRING)) {
         auto node = std::make_unique<LiteralExpr>(LiteralExpr::LiteralType::String);
-        node->value.string = _previous.value;
+        node->value = _previous.value;
         return node;
     } else if (match(TokenType::TT_IDENTIFIER)) {
         auto node = std::make_unique<VariableExpr>(_previous);

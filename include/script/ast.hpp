@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <variant>
 #include <vector>
 
 #include "token.hpp"
@@ -130,18 +131,7 @@ struct LiteralExpr : Expr {
     }
 
     LiteralType literal_type;
-
-    union Value {
-        bool boolean;
-        double number;
-        std::string string;
-
-        Value() {
-        }
-
-        ~Value() {
-        }
-    } value;
+    std::variant<bool, double, std::string> value;
 };
 
 struct LogicalExpr : Expr {

@@ -174,13 +174,13 @@ void AstJsonDumper::visit_literal_expr(LiteralExpr* node) {
         write_str_field("variable_type", "nil");
     } else if (node->literal_type == LiteralExpr::LiteralType::Boolean) {
         write_str_field("variable_type", "boolean");
-        write_str_field("variable_value", node->value.boolean ? "true" : "false");
+        write_str_field("variable_value", std::get<bool>(node->value) ? "true" : "false");
     } else if (node->literal_type == LiteralExpr::LiteralType::Number) {
         write_str_field("variable_type", "number");
-        write_double_field("variable_value", node->value.number);
+        write_double_field("variable_value", std::get<f64>(node->value));
     } else if (node->literal_type == LiteralExpr::LiteralType::String) {
         write_str_field("variable_type", "string");
-        write_str_field("variable_value", node->value.string);
+        write_str_field("variable_value", std::get<std::string>(node->value));
     }
 }
 
