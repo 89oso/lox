@@ -48,55 +48,55 @@ Token Lexer::next() {
                     advance();
                 break;
             }
-            return Token(TT_SLASH);
+            return Token(TT_SLASH, _line);
         case '(':
-            return Token(TT_LEFT_PAREN);
+            return Token(TT_LEFT_PAREN, _line);
         case ')':
-            return Token(TT_RIGHT_PAREN);
+            return Token(TT_RIGHT_PAREN, _line);
         case '{':
-            return Token(TT_LEFT_BRACE);
+            return Token(TT_LEFT_BRACE, _line);
         case '}':
-            return Token(TT_RIGHT_BRACE);
+            return Token(TT_RIGHT_BRACE, _line);
         case ',':
-            return Token(TT_COMMA);
+            return Token(TT_COMMA, _line);
         case '.':
-            return Token(TT_DOT);
+            return Token(TT_DOT, _line);
         case '-':
-            return Token(TT_MINUS);
+            return Token(TT_MINUS, _line);
         case '+':
-            return Token(TT_PLUS);
+            return Token(TT_PLUS, _line);
         case ';':
-            return Token(TT_SEMICOLON);
+            return Token(TT_SEMICOLON, _line);
         case '*':
-            return Token(TT_STAR);
+            return Token(TT_STAR, _line);
         case ':':
-            return Token(TT_COLON);
+            return Token(TT_COLON, _line);
         case '?':
-            return Token(TT_QMARK);
+            return Token(TT_QMARK, _line);
         case '!':
             if (peek() == '=') {
                 advance();
-                return Token(TT_BANG_EQUAL);
+                return Token(TT_BANG_EQUAL, _line);
             }
-            return Token(TT_BANG);
+            return Token(TT_BANG, _line);
         case '=':
             if (peek() == '=') {
                 advance();
-                return Token(TT_EQUAL_EQUAL);
+                return Token(TT_EQUAL_EQUAL, _line);
             }
-            return Token(TT_EQUAL);
+            return Token(TT_EQUAL, _line);
         case '<':
             if (peek() == '=') {
                 advance();
-                return Token(TT_LESS_EQUAL);
+                return Token(TT_LESS_EQUAL, _line);
             }
-            return Token(TT_LESS);
+            return Token(TT_LESS, _line);
         case '>':
             if (peek() == '=') {
                 advance();
-                return Token(TT_GREATER_EQUAL);
+                return Token(TT_GREATER_EQUAL, _line);
             }
-            return Token(TT_GREATER);
+            return Token(TT_GREATER, _line);
         default:
             if (c == '\0')
                 return Token(TT_EOF, _line);
@@ -170,7 +170,7 @@ Token Lexer::number() {
     if (peek() == '.') {
         if (!is_digit(peek_next())) {
             error("expected number after decimal point");
-            return Token(TT_INVALID);
+            return Token(TT_INVALID, _line);
         }
 
         // consume the '.'
