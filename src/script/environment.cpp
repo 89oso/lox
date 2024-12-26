@@ -1,6 +1,8 @@
 #include "script/environment.hpp"
 #include "common/exception.hpp"
 
+#include <iostream>
+
 ScriptEnvironment::ScriptEnvironment()
     : _enclosing(0) {
 }
@@ -45,4 +47,19 @@ ScriptObject& ScriptEnvironment::find_variable(const Token& name) {
         return _enclosing->find_variable(name);
 
     throw RuntimeError(name, "Undefined variable '" + name.value + "'.");
+}
+
+void ScriptEnvironment::print(u32 indent) {
+    std::cout << "-------- ENVIRONMENT DUMP --------\n"; 
+    for (auto& var : _variables) {
+        for (u32 i = 0; i < indent; i ++)
+            std::cout << " ";
+        std::cout << var.first << ": type = " << (u32)var.second.type << "\n";
+    }
+
+    if (_enclosing) {
+        _enclosing->print(indent + 1);
+    }
+
+    std::cout << "----------------------------------\n"; 
 }

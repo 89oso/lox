@@ -14,6 +14,11 @@ enum ScriptObjectType : u8 {
     Callable,
 };
 
+enum ScriptCallableType : u8 {
+    Builtin,
+    Function,
+};
+
 struct Interpreter;
 
 struct ScriptObject {
@@ -31,6 +36,7 @@ struct ScriptObject {
         virtual std::string to_string();
 
         u16 arity;
+        u8 type;
         callable_type function;
     };
 
@@ -41,10 +47,12 @@ struct ScriptObject {
 struct ScriptEnvironment;
 
 struct ScriptFunction : ScriptObject::Callable {
-    ScriptFunction(FunctionStmt* decl, std::shared_ptr<ScriptEnvironment> closure);
+    ScriptFunction(FunctionStmt* decl, std::shared_ptr<ScriptEnvironment> closure, bool anonymous);
+
     ScriptObject call(Interpreter* interpreter, std::vector<ScriptObject>& arguments) override;
     std::string to_string() override;
 
     FunctionStmt* decl;
     std::shared_ptr<ScriptEnvironment> closure;
+    bool anonymous;
 };

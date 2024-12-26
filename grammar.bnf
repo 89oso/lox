@@ -28,7 +28,7 @@ call_expr             ::= primary_expr ( "(" arguments? ")" )* ;
 primary_expr          ::= NUMBER | STRING | "true" | "false" | "nil" | "(" expr ")" IDENTIFIER ;
 
 arguments             ::= expr ( "," expr )* ;
-function              ::= IDENTIFIER "(" parameters? ")" block ;
+function              ::= IDENTIFIER? "(" parameters? ")" block ;
 parameters            ::= IDENTIFIER ( "," IDENTIFIER )* ;
 
 NUMBER                ::= DIGIT+ ( "." DIGIT+ )? ;

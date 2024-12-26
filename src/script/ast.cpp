@@ -98,7 +98,7 @@ void ExprStmt::accept(Visitor* visitor) {
     visitor->visit_expr_stmt(this);
 }
 
-VarStmt::VarStmt(Token name, Expr::ptr initializer)
+VarStmt::VarStmt(Token name, Node::ptr initializer)
     : name(name),
       initializer(std::move(initializer)) {
 }

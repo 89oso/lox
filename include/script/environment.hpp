@@ -15,6 +15,8 @@ public:
     void define_function(const std::string& name, u16 arity, ScriptObject::callable_type function);
     ScriptObject& find_variable(const Token& name);
 
+    void print(u32 indent);
+
 private:
     ScriptEnvironment* _enclosing;
     std::unordered_map<std::string, ScriptObject> _variables;

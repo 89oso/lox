@@ -80,6 +80,11 @@ void AstJsonDumper::visit_function_stmt(FunctionStmt* stmt) {
     indent++;
 
     write_str_field("type", "FunctionStmt");
+    if (stmt->name.type == TokenType::TT_INVALID) {
+        write_str_field("name", "<anonymous function>");
+    } else {
+        write_str_field("name", stmt->name.value);
+    }
     write_token_array("params", stmt->params);
     write_node_array("body", stmt->body);
 }

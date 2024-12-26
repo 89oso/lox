@@ -2,22 +2,12 @@
 #include "common/exception.hpp"
 #include "common/finally.hpp"
 
-#include <chrono>
 #include <iostream>
 #include <fmt/core.h>
-// #include <format>
 
 Interpreter::Interpreter() {
     _current_env = &_global_env;
     _control_flow_state = ControlFlowState::None;
-
-    _global_env.define_function(
-        "builtin_magic_number", 0, [&](Interpreter* interpreter, std::vector<ScriptObject>& arguments) {
-            ScriptObject result;
-            result.type = ScriptObjectType::Number;
-            result.value = (f64)42;
-            return result;
-        });
 }
 
 void Interpreter::interpret(Node* node) {
@@ -102,9 +92,18 @@ void Interpreter::visit_break_stmt(BreakStmt* stmt) {
 void Interpreter::visit_function_stmt(FunctionStmt* stmt) {
     ScriptObject function;
     function.type = ScriptObjectType::Callable;
-    function.value = std::make_shared<ScriptFunction>(stmt, std::make_shared<ScriptEnvironment>(*_current_env));
 
-    _current_env->define_variable(stmt->name.value, function);
+    auto closure = std::make_shared<ScriptEnvironment>(*_current_env);
+    function.value = std::make_shared<ScriptFunction>(stmt, closure, stmt->name.type == TT_INVALID);
+
+    if (stmt->name.type == TokenType::TT_INVALID) {
+        stmt->name.value = "$anon";
+        closure->define_variable(stmt->name.value, function);
+    } else {
+        _current_env->define_variable(stmt->name.value, function);
+    }
+
+    push_variable(ScriptObjectType::Callable, function);
 }
 
 void Interpreter::visit_return_stmt(ReturnStmt* stmt) {

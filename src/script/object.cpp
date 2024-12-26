@@ -9,6 +9,7 @@ ScriptObject::ScriptObject()
 
 ScriptObject::Callable::Callable()
     : arity(0),
+      type(ScriptCallableType::Builtin),
       function(0) {
 }
 
@@ -25,17 +26,33 @@ std::string ScriptObject::Callable::to_string() {
     return "<builtin_fn>";
 }
 
-ScriptFunction::ScriptFunction(FunctionStmt* decl, std::shared_ptr<ScriptEnvironment> closure)
+ScriptFunction::ScriptFunction(FunctionStmt* decl, std::shared_ptr<ScriptEnvironment> closure, bool anonymous)
     : decl(decl),
-      closure(closure) {
+      closure(closure),
+      anonymous(anonymous) {
     arity = decl->params.size();
+    type = ScriptCallableType::Function;
 }
 
 ScriptObject ScriptFunction::call(Interpreter* interpreter, std::vector<ScriptObject>& arguments) {
     std::shared_ptr<ScriptEnvironment> environment = closure;
 
     for (int i = 0; i < decl->params.size(); i++) {
-        environment->define_variable(decl->params.at(i).value, arguments.at(i));
+        auto& arg = arguments.at(i);
+        auto& param = decl->params.at(i);
+
+        // rename anonymous function to param name if possible
+        if (arg.type == ScriptObjectType::Callable) {
+            auto callable = std::get<ScriptObject::Callable::ptr>(arg.value);
+            if (callable->type == ScriptCallableType::Function) {
+                auto* func = reinterpret_cast<ScriptFunction*>(callable.get());
+                if (func->anonymous) {
+                    func->decl->name.value = param.value;
+                }
+            }
+        }
+
+        environment->define_variable(param.value, arg);
     }
 
     interpreter->execute_block(decl->body, environment);

@@ -1,0 +1,14 @@
+fun answer(a) {
+   a(42);
+   a("hello world");
+}
+
+answer(fun(arg) {
+    print arg;
+});
+
+var lambda = fun() {
+    return nil;
+};
+
+print lambda();

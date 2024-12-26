@@ -226,7 +226,7 @@ struct ExprStmt : Stmt {
 };
 
 struct VarStmt : Stmt {
-    explicit VarStmt(Token name, Expr::ptr initializer);
+    explicit VarStmt(Token name, Node::ptr initializer);
     void accept(Visitor* visitor) override;
 
     u8 type() override {
@@ -234,7 +234,7 @@ struct VarStmt : Stmt {
     }
 
     Token name;
-    Expr::ptr initializer;
+    Node::ptr initializer;
 };
 
 struct BlockStmt : Stmt {
