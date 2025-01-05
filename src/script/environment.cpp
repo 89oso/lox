@@ -11,6 +11,10 @@ ScriptEnvironment::ScriptEnvironment(ScriptEnvironment* enclosing)
     : _enclosing(enclosing) {
 }
 
+void ScriptEnvironment::set_name(const std::string& name) {
+    _name = name;
+}
+
 void ScriptEnvironment::assign_variable(const Token& name, ScriptObject& value) {
     auto itr = _variables.find(name.value);
     if (itr != _variables.end()) {
@@ -50,9 +54,9 @@ ScriptObject& ScriptEnvironment::find_variable(const Token& name) {
 }
 
 void ScriptEnvironment::print(u32 indent) {
-    std::cout << "-------- ENVIRONMENT DUMP --------\n"; 
+    std::cout << "-------- ENVIRONMENT DUMP --------\n";
     for (auto& var : _variables) {
-        for (u32 i = 0; i < indent; i ++)
+        for (u32 i = 0; i < indent; i++)
             std::cout << " ";
         std::cout << var.first << ": type = " << (u32)var.second.type << "\n";
     }
@@ -61,5 +65,5 @@ void ScriptEnvironment::print(u32 indent) {
         _enclosing->print(indent + 1);
     }
 
-    std::cout << "----------------------------------\n"; 
+    std::cout << "----------------------------------\n";
 }

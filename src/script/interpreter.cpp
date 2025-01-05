@@ -6,6 +6,7 @@
 #include <fmt/core.h>
 
 Interpreter::Interpreter() {
+    _global_env.set_name("global_scope");
     _current_env = &_global_env;
     _control_flow_state = ControlFlowState::None;
 }
@@ -53,10 +54,12 @@ void Interpreter::visit_var_stmt(VarStmt* stmt) {
 }
 
 void Interpreter::visit_block_stmt(BlockStmt* stmt) {
+    static int counter = 0; // TODO: clean
     if (_control_flow_state != ControlFlowState::None)
         return;
 
     auto environment = std::make_shared<ScriptEnvironment>(_current_env);
+    environment->set_name(fmt::format("block_scope_{}", counter));
     execute_block(stmt->statements, environment);
 }
 
@@ -92,7 +95,7 @@ void Interpreter::visit_function_stmt(FunctionStmt* stmt) {
     ScriptObject function;
     function.type = ScriptObjectType::Callable;
 
-    auto closure = std::make_shared<ScriptEnvironment>(*_current_env);
+    auto closure = std::make_shared<ScriptEnvironment>(_current_env);
     function.value = std::make_shared<ScriptFunction>(stmt, closure, stmt->name.type == TT_INVALID);
 
     if (stmt->name.type == TokenType::TT_INVALID) {
@@ -101,6 +104,8 @@ void Interpreter::visit_function_stmt(FunctionStmt* stmt) {
     } else {
         _current_env->define_variable(stmt->name.value, function);
     }
+
+    closure->set_name(fmt::format("function_scope_{}", stmt->name.value));
 
     push_variable(ScriptObjectType::Callable, function);
 }
