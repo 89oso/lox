@@ -12,7 +12,6 @@ Interpreter::Interpreter() {
 
 void Interpreter::interpret(Node* node) {
     try {
-        // TODO: force interpreter to only take in a statement ptr
         node->accept(this);
     } catch (const RuntimeError& e) {
         std::cerr << "[runtime error]: " << e.what() << "\n";

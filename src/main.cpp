@@ -32,7 +32,7 @@ namespace {
             return;
         }
 
-        size_t size = file.tellg();
+        usize size = file.tellg();
         file.seekg(0, std::ios::beg);
 
         std::string buffer;

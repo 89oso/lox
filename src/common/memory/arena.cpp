@@ -18,7 +18,7 @@ void MemoryArena::init(MemoryArena* arena, void* buffer, usize size) {
 
 // You are looking to find how many bytes forward you need to go in order for the memory address is a multiple of the
 // specified alignment.
-static usize align_forward(usize ptr, size_t align) {
+static usize align_forward(usize ptr, usize align) {
     assert(is_power_of_two(align));
 
     usize p = ptr;
@@ -60,7 +60,7 @@ void* MemoryArena::alloc(MemoryArena* arena, usize size) {
 }
 
 static void*
-    arena_resize_aligned(MemoryArena* arena, void* old_ptr, size_t old_size, size_t new_size, size_t alignment) {
+    arena_resize_aligned(MemoryArena* arena, void* old_ptr, usize old_size, usize new_size, usize alignment) {
     assert(arena);
     assert(arena->buf);
 
@@ -84,7 +84,7 @@ static void*
         return old_memory;
     } else {
         void* new_memory = arena_alloc_aligned(arena, new_size, alignment);
-        size_t copy_size = old_size < new_size ? old_size : new_size;
+        usize copy_size = old_size < new_size ? old_size : new_size;
 
         // Copy across old memory to the new memory
         memmove(new_memory, old_memory, copy_size);
