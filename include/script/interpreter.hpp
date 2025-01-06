@@ -58,6 +58,6 @@ private:
     bool is_true(ScriptObject object);
     bool is_equal(ScriptObject a, ScriptObject b);
 
-    void assert_object_type(Token op, ScriptObjectType type, ScriptObject& object);
-    void assert_objects_type(Token op, ScriptObjectType type, ScriptObject& a, ScriptObject& b);
+    void assert_object_type(Token& op, ScriptObjectType type, ScriptObject& object);
+    void assert_objects_type(Token& op, ScriptObjectType type, ScriptObject& a, ScriptObject& b);
 };

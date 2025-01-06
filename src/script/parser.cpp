@@ -12,7 +12,7 @@ Parser::Parser(const std::string& buffer)
     _current = _lexer->next();
 }
 
-std::vector<Stmt::ptr>& Parser::parse() {
+std::vector<Node::ptr>& Parser::parse() {
     while (_current.type != TokenType::TT_EOF) {
         auto stmt = parse_decl();
         _statements.push_back(std::move(stmt));
@@ -53,7 +53,7 @@ Token Parser::consume(TokenType type, const std::string& error) {
     return Token();
 }
 
-void Parser::throw_error(Token token, const std::string& error) {
+void Parser::throw_error(Token& token, const std::string& error) {
     _error = true;
 
     std::string message;

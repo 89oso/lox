@@ -371,13 +371,13 @@ bool Interpreter::is_equal(ScriptObject a, ScriptObject b) {
     return false;
 }
 
-void Interpreter::assert_object_type(Token op, ScriptObjectType type, ScriptObject& variable) {
+void Interpreter::assert_object_type(Token& op, ScriptObjectType type, ScriptObject& variable) {
     if (variable.type == type)
         return;
     throw RuntimeError(op, "variable type mismatch");
 }
 
-void Interpreter::assert_objects_type(Token op, ScriptObjectType type, ScriptObject& a, ScriptObject& b) {
+void Interpreter::assert_objects_type(Token& op, ScriptObjectType type, ScriptObject& a, ScriptObject& b) {
     if (a.type == type && b.type == type)
         return;
     throw RuntimeError(op, "variable type mismatch");

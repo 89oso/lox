@@ -22,7 +22,7 @@ private:
 
 class RuntimeError : public std::exception {
 public:
-    RuntimeError(Token token, const std::string& message)
+    RuntimeError(const Token& token, const std::string& message)
         : _token(token),
           _message(message) {
     }

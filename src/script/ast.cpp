@@ -1,6 +1,6 @@
 #include "script/ast.hpp"
 
-UnaryExpr::UnaryExpr(Token op, Node::ptr expr)
+UnaryExpr::UnaryExpr(Token& op, Node::ptr expr)
     : op(op),
       expr(std::move(expr)) {
 }
@@ -9,7 +9,7 @@ void UnaryExpr::accept(Visitor* visitor) {
     visitor->visit_unary_expr(this);
 }
 
-BinaryExpr::BinaryExpr(Token op, Node::ptr left, Node::ptr right)
+BinaryExpr::BinaryExpr(Token& op, Node::ptr left, Node::ptr right)
     : op(op),
       left(std::move(left)),
       right(std::move(right)) {
@@ -35,7 +35,7 @@ void LiteralExpr::accept(Visitor* visitor) {
     visitor->visit_literal_expr(this);
 }
 
-LogicalExpr::LogicalExpr(Token op, Node::ptr left, Node::ptr right)
+LogicalExpr::LogicalExpr(Token& op, Node::ptr left, Node::ptr right)
     : op(op),
       left(std::move(left)),
       right(std::move(right)) {
@@ -55,7 +55,7 @@ void ConditionalExpr::accept(Visitor* visitor) {
     visitor->visit_conditional_expr(this);
 }
 
-VariableExpr::VariableExpr(Token name)
+VariableExpr::VariableExpr(Token& name)
     : name(name) {
 }
 
@@ -63,7 +63,7 @@ void VariableExpr::accept(Visitor* visitor) {
     visitor->visit_variable_expr(this);
 }
 
-AssignmentExpr::AssignmentExpr(Token name, Node::ptr value)
+AssignmentExpr::AssignmentExpr(Token& name, Node::ptr value)
     : name(name),
       value(std::move(value)) {
 }
@@ -72,7 +72,7 @@ void AssignmentExpr::accept(Visitor* visitor) {
     visitor->visit_assignment_expr(this);
 }
 
-CallExpr::CallExpr(Node::ptr callee, Token paren, std::vector<Node::ptr> arguments)
+CallExpr::CallExpr(Node::ptr callee, Token& paren, std::vector<Node::ptr> arguments)
     : callee(std::move(callee)),
       paren(paren),
       arguments(std::move(arguments)) {
@@ -98,7 +98,7 @@ void ExprStmt::accept(Visitor* visitor) {
     visitor->visit_expr_stmt(this);
 }
 
-VarStmt::VarStmt(Token name, Node::ptr initializer)
+VarStmt::VarStmt(Token& name, Node::ptr initializer)
     : name(name),
       initializer(std::move(initializer)) {
 }
@@ -141,7 +141,7 @@ void BreakStmt::accept(Visitor* visitor) {
     visitor->visit_break_stmt(this);
 }
 
-FunctionStmt::FunctionStmt(Token name, std::vector<Token> params, std::vector<Node::ptr> body)
+FunctionStmt::FunctionStmt(Token& name, std::vector<Token> params, std::vector<Node::ptr> body)
     : name(name),
       params(params),
       body(std::move(body)) {
@@ -151,7 +151,7 @@ void FunctionStmt::accept(Visitor* visitor) {
     visitor->visit_function_stmt(this);
 }
 
-ReturnStmt::ReturnStmt(Token keyword, Node::ptr expr)
+ReturnStmt::ReturnStmt(Token& keyword, Node::ptr expr)
     : keyword(keyword),
       expr(std::move(expr)) {
 }

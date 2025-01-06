@@ -84,7 +84,7 @@ struct Expr : public Node {
 };
 
 struct UnaryExpr : Expr {
-    explicit UnaryExpr(Token op, Node::ptr expr);
+    explicit UnaryExpr(Token& op, Node::ptr expr);
     void accept(Visitor* visitor) override;
 
     u8 type() override {
@@ -96,7 +96,7 @@ struct UnaryExpr : Expr {
 };
 
 struct BinaryExpr : Expr {
-    explicit BinaryExpr(Token op, Node::ptr left, Node::ptr right);
+    explicit BinaryExpr(Token& op, Node::ptr left, Node::ptr right);
     void accept(Visitor* visitor) override;
 
     u8 type() override {
@@ -135,7 +135,7 @@ struct LiteralExpr : Expr {
 };
 
 struct LogicalExpr : Expr {
-    explicit LogicalExpr(Token op, Node::ptr left, Node::ptr right);
+    explicit LogicalExpr(Token& op, Node::ptr left, Node::ptr right);
     void accept(Visitor* visitor) override;
 
     u8 type() override {
@@ -161,7 +161,7 @@ struct ConditionalExpr : Expr {
 };
 
 struct VariableExpr : Expr {
-    explicit VariableExpr(Token name);
+    explicit VariableExpr(Token& name);
     void accept(Visitor* visitor) override;
 
     u8 type() override {
@@ -172,7 +172,7 @@ struct VariableExpr : Expr {
 };
 
 struct AssignmentExpr : Expr {
-    explicit AssignmentExpr(Token name, Node::ptr value);
+    explicit AssignmentExpr(Token& name, Node::ptr value);
     void accept(Visitor* visitor) override;
 
     u8 type() override {
@@ -184,7 +184,7 @@ struct AssignmentExpr : Expr {
 };
 
 struct CallExpr : Expr {
-    explicit CallExpr(Node::ptr callee, Token paren, std::vector<Node::ptr> arguments);
+    explicit CallExpr(Node::ptr callee, Token& paren, std::vector<Node::ptr> arguments);
     void accept(Visitor* visitor) override;
 
     u8 type() override {
@@ -226,7 +226,7 @@ struct ExprStmt : Stmt {
 };
 
 struct VarStmt : Stmt {
-    explicit VarStmt(Token name, Node::ptr initializer);
+    explicit VarStmt(Token& name, Node::ptr initializer);
     void accept(Visitor* visitor) override;
 
     u8 type() override {
@@ -283,7 +283,7 @@ struct BreakStmt : Stmt {
 };
 
 struct FunctionStmt : Stmt {
-    explicit FunctionStmt(Token name, std::vector<Token> params, std::vector<Node::ptr> body);
+    explicit FunctionStmt(Token& name, std::vector<Token> params, std::vector<Node::ptr> body);
     void accept(Visitor* visitor) override;
 
     u8 type() override {
@@ -296,7 +296,7 @@ struct FunctionStmt : Stmt {
 };
 
 struct ReturnStmt : Stmt {
-    explicit ReturnStmt(Token keyword, Node::ptr expr);
+    explicit ReturnStmt(Token& keyword, Node::ptr expr);
     void accept(Visitor* visitor) override;
 
     u8 type() override {

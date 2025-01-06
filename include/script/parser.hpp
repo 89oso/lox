@@ -7,7 +7,7 @@ class Parser {
 public:
     Parser(const std::string& buffer);
 
-    std::vector<Stmt::ptr>& parse();
+    std::vector<Node::ptr>& parse();
     bool error() const;
 
 private:
@@ -16,7 +16,7 @@ private:
     Token _previous;
     bool _error;
     bool _allow_break_stmt;
-    std::vector<Stmt::ptr> _statements;
+    std::vector<Node::ptr> _statements;
 
     Token advance();
 
@@ -24,7 +24,7 @@ private:
     bool match(TokenType type);
     Token consume(TokenType type, const std::string& error);
 
-    void throw_error(Token token, const std::string& error);
+    void throw_error(Token& token, const std::string& error);
 
     void sync();
 
