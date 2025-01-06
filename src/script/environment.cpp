@@ -30,6 +30,13 @@ void ScriptEnvironment::assign_variable(const Token& name, ScriptObject& value) 
     throw RuntimeError(name, "Undefined variable '" + name.value + "'.");
 }
 
+void ScriptEnvironment::assign_variable_at(usize distance, const Token& name, ScriptObject& value) {
+    ScriptEnvironment* ancestor = get_ancestor(distance);
+
+    // TODO: ensure that we can do obj == obj
+    ancestor->_variables[name.value] = value;
+}
+
 void ScriptEnvironment::define_variable(const std::string& name, ScriptObject& value) {
     _variables[name] = value;
 }
@@ -53,6 +60,11 @@ ScriptObject& ScriptEnvironment::find_variable(const Token& name) {
     throw RuntimeError(name, "Undefined variable '" + name.value + "'.");
 }
 
+ScriptObject& ScriptEnvironment::find_variable_at(usize distance, const Token& name) {
+    ScriptEnvironment* ancestor = get_ancestor(distance);
+    return ancestor->_variables[name.value];
+}
+
 void ScriptEnvironment::print(u32 indent) {
     std::cout << "-------- ENVIRONMENT DUMP --------\n";
     for (auto& var : _variables) {
@@ -66,4 +78,14 @@ void ScriptEnvironment::print(u32 indent) {
     }
 
     std::cout << "----------------------------------\n";
+}
+
+ScriptEnvironment* ScriptEnvironment::get_ancestor(usize distance) {
+    ScriptEnvironment* ancestor = this;
+
+    for (usize i = 0; i < distance; i++) {
+        ancestor = ancestor->_enclosing;
+    }
+
+    return ancestor;
 }

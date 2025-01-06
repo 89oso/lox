@@ -1,0 +1,15 @@
+// should print "global" -> "test" -> "block"
+
+var a = "global";
+
+{
+    fun showA() {
+        print a;
+        a = "test"; // modifies the global variable
+    }
+
+    showA();
+    var a = "block";
+    showA();
+    print a;
+}

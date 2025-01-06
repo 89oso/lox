@@ -14,6 +14,7 @@ public:
     Interpreter();
 
     void interpret(Node* node);
+    void resolve(Expr* expr, usize depth);
 
     void visit_print_stmt(PrintStmt* stmt) override;
     void visit_expr_stmt(ExprStmt* stmt) override;
@@ -49,11 +50,13 @@ private:
     ScriptEnvironment* _current_env;
     ScriptObject _expr_result;
     ControlFlowState _control_flow_state;
+    std::unordered_map<Expr*, usize> _locals;
 
     // TODO: change places that use Node for type when Expr should be explicitly stated
     ScriptObject evaluate(Node* expr);
     void execute(Stmt* stmt);
     void push_variable(u8 type, ScriptObject& value);
+    ScriptObject lookup_variable(Token& name, Expr* expr);
 
     bool is_true(ScriptObject object);
     bool is_equal(ScriptObject a, ScriptObject b);

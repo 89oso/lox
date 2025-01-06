@@ -7,7 +7,7 @@
 
 AstJsonDumper::AstJsonDumper()
     : indent{ 0 } {
-    buffer.resize(1000);
+    buffer.reserve(1000);
 }
 
 void AstJsonDumper::dump(Node* node) {

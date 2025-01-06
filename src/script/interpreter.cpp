@@ -19,6 +19,10 @@ void Interpreter::interpret(Node* node) {
     }
 }
 
+void Interpreter::resolve(Expr* expr, usize depth) {
+    _locals[expr] = depth;
+}
+
 void Interpreter::visit_print_stmt(PrintStmt* stmt) {
     auto variable = evaluate(stmt->expr.get());
 
@@ -269,13 +273,20 @@ void Interpreter::visit_conditional_expr(ConditionalExpr* node) {
 }
 
 void Interpreter::visit_variable_expr(VariableExpr* node) {
-    auto result = _current_env->find_variable(node->name);
+    auto result = lookup_variable(node->name, node);
     push_variable(result.type, result);
 }
 
 void Interpreter::visit_assignment_expr(AssignmentExpr* node) {
     auto value = evaluate(node->value.get());
-    _current_env->assign_variable(node->name, value);
+
+    if (_locals.contains(node)) {
+        usize distance = _locals[node];
+        _current_env->assign_variable_at(distance, node->name, value);
+        return;
+    }
+
+    _global_env.assign_variable(node->name, value);
 }
 
 void Interpreter::visit_call_expr(CallExpr* node) {
@@ -347,6 +358,14 @@ void Interpreter::push_variable(u8 type, ScriptObject& value) {
     }
 
     _expr_result = value;
+}
+
+ScriptObject Interpreter::lookup_variable(Token& name, Expr* expr) {
+    if (_locals.contains(expr)) {
+        usize distance = _locals[expr];
+        return _current_env->find_variable_at(distance, name);
+    }
+    return _global_env.find_variable(name);
 }
 
 bool Interpreter::is_true(ScriptObject variable) {

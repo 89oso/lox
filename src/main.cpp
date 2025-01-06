@@ -1,6 +1,7 @@
 #include "script/parser.hpp"
 #include "script/ast_json_dumper.hpp"
 #include "script/interpreter.hpp"
+#include "script/resolver.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -11,7 +12,7 @@ namespace {
     void process_buffer(const std::string& buffer) {
         Parser parser(buffer);
 
-        std::vector<Stmt::ptr>& statements = parser.parse();
+        std::vector<Node::ptr>& statements = parser.parse();
 
         if (parser.error())
             return;
@@ -19,7 +20,12 @@ namespace {
         for (auto& stmt : statements) {
             AstJsonDumper json_dumper;
             json_dumper.dump(stmt.get());
+        }
 
+        Resolver resolver(&interpreter);
+        resolver.resolve_statements(statements);
+
+        for (auto& stmt : statements) {
             interpreter.interpret(stmt.get());
         }
     }
