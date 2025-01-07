@@ -1,12 +1,23 @@
 #include "script/resolver.hpp"
+#include "common/exception.hpp"
+
+#include <iostream>
 
 Resolver::Resolver(Interpreter* interpreter)
-    : _interpreter(interpreter) {
+    : _error(false),
+      _interpreter(interpreter),
+      _current_scope_type(ScopeType::Global) {
 }
 
-void Resolver::resolve_statements(std::vector<Node::ptr>& statements) {
-    for (auto& stmt : statements) {
-        resolve_stmt(reinterpret_cast<Stmt*>(stmt.get()));
+bool Resolver::error() const {
+    return _error;
+}
+
+void Resolver::run(std::vector<Node::ptr>& statements) {
+    try {
+        resolve_statements(statements);
+    } catch (const ResolverError& e) {
+        std::cerr << "[resolver error]: " << e.what() << "\n";
     }
 }
 
@@ -53,10 +64,14 @@ void Resolver::visit_break_stmt(BreakStmt* stmt) {
 void Resolver::visit_function_stmt(FunctionStmt* stmt) {
     declare(stmt->name);
     define(stmt->name);
-    resolve_function(stmt);
+    resolve_function(stmt, ScopeType::Function);
 }
 
 void Resolver::visit_return_stmt(ReturnStmt* stmt) {
+    if (_current_scope_type == ScopeType::Global) {
+        throw_error(stmt->keyword, "Can't return from global scope");
+    }
+
     if (stmt->expr) {
         resolve_expr(reinterpret_cast<Expr*>(stmt->expr.get()));
     }
@@ -95,8 +110,7 @@ void Resolver::visit_variable_expr(VariableExpr* node) {
     if (!_scopes.empty()) {
         auto& scope = _scopes.back();
         if (scope.contains(node->name.value) && scope[node->name.value] == false) {
-            // throw error
-            // can't read local variable in it's own initializer
+            throw_error(node->name, "Can't read variable in it's own initializer");
         }
     }
 
@@ -120,6 +134,18 @@ void Resolver::visit_call_expr(CallExpr* node) {
     }
 }
 
+void Resolver::throw_error(Token& token, const std::string& error) {
+    _error = true;
+
+    std::string message;
+    if (token.type == TokenType::TT_EOF)
+        message = error + " at EOF (line " + std::to_string(token.line) + ")";
+    else
+        message = error + " at '" + token.to_string() + "' (line " + std::to_string(token.line) + ")";
+
+    throw ResolverError(message);
+}
+
 void Resolver::resolve_stmt(Stmt* stmt) {
     stmt->accept(this);
 }
@@ -128,8 +154,17 @@ void Resolver::resolve_expr(Expr* expr) {
     expr->accept(this);
 }
 
+void Resolver::resolve_statements(std::vector<Node::ptr>& statements) {
+    for (auto& stmt : statements) {
+        resolve_stmt(reinterpret_cast<Stmt*>(stmt.get()));
+    }
+}
+
 // TODO: make sure this works with anonymous functions too
-void Resolver::resolve_function(FunctionStmt* stmt) {
+void Resolver::resolve_function(FunctionStmt* stmt, ScopeType scope_type) {
+    ScopeType enclosing_scope_type = _current_scope_type;
+    _current_scope_type = scope_type;
+
     begin_scope();
 
     for (auto& param : stmt->params) {
@@ -140,6 +175,8 @@ void Resolver::resolve_function(FunctionStmt* stmt) {
     resolve_statements(stmt->body);
 
     end_scope();
+
+    _current_scope_type = enclosing_scope_type;
 }
 
 void Resolver::begin_scope() {
@@ -157,6 +194,11 @@ void Resolver::declare(Token& name) {
     }
 
     auto& scope = _scopes.back();
+
+    if (scope.contains(name.value)) {
+        throw_error(name, "Already a variable with this name in current scope");
+    }
+
     scope[name.value] = false;
 }
 

@@ -23,7 +23,10 @@ namespace {
         }
 
         Resolver resolver(&interpreter);
-        resolver.resolve_statements(statements);
+        resolver.run(statements);
+
+        if (resolver.error())
+            return;
 
         for (auto& stmt : statements) {
             interpreter.interpret(stmt.get());

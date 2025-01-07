@@ -2,11 +2,17 @@
 
 #include "interpreter.hpp"
 
+enum class ScopeType {
+    Global,
+    Function,
+};
+
 class Resolver : public Visitor {
 public:
     Resolver(Interpreter* interpreter);
 
-    void resolve_statements(std::vector<Node::ptr>& statements);
+    bool error() const;
+    void run(std::vector<Node::ptr>& statements);
 
     void visit_print_stmt(PrintStmt* stmt) override;
     void visit_expr_stmt(ExprStmt* stmt) override;
@@ -29,12 +35,17 @@ public:
     void visit_call_expr(CallExpr* node) override;
 
 private:
+    bool _error;
     Interpreter* _interpreter;
     std::vector<std::unordered_map<std::string, bool>> _scopes;
+    ScopeType _current_scope_type;
+
+    void throw_error(Token& token, const std::string& error);
 
     void resolve_stmt(Stmt* stmt);
     void resolve_expr(Expr* expr);
-    void resolve_function(FunctionStmt* stmt);
+    void resolve_statements(std::vector<Node::ptr>& statements);
+    void resolve_function(FunctionStmt* stmt, ScopeType scope_type);
 
     void begin_scope();
     void end_scope();

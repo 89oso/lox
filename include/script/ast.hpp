@@ -119,7 +119,6 @@ struct GroupingExpr : Expr {
     Node::ptr expr;
 };
 
-// TODO: cleanup this node
 struct LiteralExpr : Expr {
     enum class LiteralType { Nil, Boolean, Number, String };
 

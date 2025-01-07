@@ -1,0 +1,9 @@
+// return; // error -> "Can't return from global scope"
+
+{
+    var a = "1";
+    // var a = a; // error -> "Can't read variable in it's own initializer"
+    var a = 42; // error -> "Already a variable with this name in current scope"
+
+    print a;
+}
