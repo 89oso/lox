@@ -1,0 +1,15 @@
+var global = 42; // unused global vars are not detected
+
+{
+    var a = 0;
+    var _ = "unused"; // this should be detected
+
+    // function arg 'a2' is unused here
+    fun test(a1, a2) {
+        print a1;
+        // print a2;
+    }
+
+    var a2 = "block_a";
+    test(a, a2);
+}

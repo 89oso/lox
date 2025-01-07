@@ -109,8 +109,11 @@ void Resolver::visit_variable_expr(VariableExpr* node) {
     // check if the variable exists in the current scope and ensure the entry is defined (false means declared)
     if (!_scopes.empty()) {
         auto& scope = _scopes.back();
-        if (scope.contains(node->name.value) && scope[node->name.value] == false) {
-            throw_error(node->name, "Can't read variable in it's own initializer");
+        if (scope.contains(node->name.value)) {
+            auto& variable_state = scope[node->name.value];
+            if (variable_state == VariableState::Declared) {
+                throw_error(node->name, "Can't read variable in it's own initializer");
+            }
         }
     }
 
@@ -180,11 +183,18 @@ void Resolver::resolve_function(FunctionStmt* stmt, ScopeType scope_type) {
 }
 
 void Resolver::begin_scope() {
-    std::unordered_map<std::string, bool> new_scope;
+    std::unordered_map<std::string, VariableState> new_scope;
     _scopes.push_back(new_scope);
 }
 
 void Resolver::end_scope() {
+    auto& scope = _scopes.back();
+    for (auto& [name, state] : scope) {
+        if (state != VariableState::Used) {
+            std::cerr << "[resolver warning]: unused variable '" << name << "'\n";
+        }
+    }
+
     _scopes.pop_back();
 }
 
@@ -199,7 +209,7 @@ void Resolver::declare(Token& name) {
         throw_error(name, "Already a variable with this name in current scope");
     }
 
-    scope[name.value] = false;
+    scope[name.value] = VariableState::Declared;
 }
 
 void Resolver::define(Token& name) {
@@ -208,13 +218,14 @@ void Resolver::define(Token& name) {
     }
 
     auto& scope = _scopes.back();
-    scope[name.value] = true;
+    scope[name.value] = VariableState::Defined;
 }
 
 void Resolver::resolve_local(Expr* expr, Token& name) {
     usize depth = _scopes.size() - 1;
     for (auto scope = _scopes.rbegin(); scope != _scopes.rend(); scope++) {
         if (scope->contains(name.value)) {
+            scope->at(name.value) = VariableState::Used;
             _interpreter->resolve(expr, _scopes.size() - 1 - depth);
             return;
         }

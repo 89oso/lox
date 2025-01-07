@@ -7,6 +7,12 @@ enum class ScopeType {
     Function,
 };
 
+enum class VariableState {
+    Declared,
+    Defined,
+    Used,
+};
+
 class Resolver : public Visitor {
 public:
     Resolver(Interpreter* interpreter);
@@ -37,7 +43,7 @@ public:
 private:
     bool _error;
     Interpreter* _interpreter;
-    std::vector<std::unordered_map<std::string, bool>> _scopes;
+    std::vector<std::unordered_map<std::string, VariableState>> _scopes;
     ScopeType _current_scope_type;
 
     void throw_error(Token& token, const std::string& error);
@@ -49,6 +55,7 @@ private:
 
     void begin_scope();
     void end_scope();
+    void check_unused_variables();
 
     void declare(Token& name);
     void define(Token& name);
