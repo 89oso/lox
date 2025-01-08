@@ -2,9 +2,9 @@
 
 #include "ast.hpp"
 
-class AstJsonDumper : public Visitor {
+class AstDumper : public Visitor {
 public:
-    AstJsonDumper();
+    AstDumper();
 
     void dump(Node* node);
 

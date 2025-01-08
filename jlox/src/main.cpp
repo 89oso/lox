@@ -1,10 +1,12 @@
 #include "script/parser.hpp"
-#include "script/ast_json_dumper.hpp"
+#include "script/ast_dumper.hpp"
 #include "script/interpreter.hpp"
 #include "script/resolver.hpp"
 
 #include <fstream>
 #include <iostream>
+
+// TODO: chapter 11 challenge 4
 
 namespace {
     Interpreter interpreter;
@@ -18,7 +20,7 @@ namespace {
             return;
 
         for (auto& stmt : statements) {
-            AstJsonDumper json_dumper;
+            AstDumper json_dumper;
             json_dumper.dump(stmt.get());
         }
 

@@ -13,14 +13,14 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fmt)
 
-project(lox LANGUAGES CXX)
+project(jlox LANGUAGES CXX)
 
-add_executable(lox
+add_executable(jlox
     src/main.cpp
     src/common/memory/arena.cpp
     src/common/utils.cpp
     src/script/ast.cpp
-    src/script/ast_json_dumper.cpp
+    src/script/ast_dumper.cpp
     src/script/environment.cpp
     src/script/interpreter.cpp
     src/script/lexer.cpp
@@ -30,5 +30,5 @@ add_executable(lox
     src/script/token.cpp
 )
 
-target_include_directories(lox PRIVATE include/)
-target_link_libraries(lox fmt::fmt)
+target_include_directories(jlox PRIVATE include/)
+target_link_libraries(jlox fmt::fmt)
