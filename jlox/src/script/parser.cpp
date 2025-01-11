@@ -94,6 +94,8 @@ Stmt::ptr Parser::parse_decl() {
     try {
         if (match(TokenType::TT_VAR))
             return parse_var_decl();
+        else if (match(TokenType::TT_FUN))
+            return parse_function_decl("function", false, false);
 
         return parse_stmt();
     } catch (const ParseError& e) {
@@ -109,7 +111,7 @@ Stmt::ptr Parser::parse_var_decl() {
     Node::ptr initializer = nullptr;
     if (match(TokenType::TT_EQUAL)) {
         if (match(TokenType::TT_FUN)) {
-            initializer = parse_function_stmt("anonymous function", true, true);
+            initializer = parse_function_decl("anonymous function", true, true);
         } else {
             initializer = parse_expr();
         }
@@ -118,6 +120,45 @@ Stmt::ptr Parser::parse_var_decl() {
     consume(TokenType::TT_SEMICOLON, "Expect ';' after expression");
 
     return std::make_unique<VarStmt>(name, std::move(initializer));
+}
+
+Stmt::ptr Parser::parse_function_decl(const std::string& kind, bool anon_decl, bool var_decl) {
+    Token name;
+    if (anon_decl && check(TokenType::TT_IDENTIFIER)) {
+        throw_error(_current, "anonymous function should not have a name");
+    }
+
+    if (!anon_decl) {
+        name = consume(TokenType::TT_IDENTIFIER, "Expect " + kind + " name");
+    }
+
+    if (name.type == TT_INVALID)
+        consume(TokenType::TT_LEFT_PAREN, "Expect '(' for " + kind + "");
+    else
+        consume(TokenType::TT_LEFT_PAREN, "Expect '(' after " + kind + " name");
+
+    std::vector<Token> parameters;
+    if (!check(TokenType::TT_RIGHT_PAREN)) {
+        do {
+            if (parameters.size() >= 255) {
+                // TODO: technically should peek() here instead of passing _current
+                throw_error(_current, "Can't have more than 255 parameters.");
+            }
+            parameters.push_back(consume(TokenType::TT_IDENTIFIER, "Expect parameter name"));
+        } while (match(TokenType::TT_COMMA));
+    }
+
+    consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after parameters");
+    consume(TokenType::TT_LEFT_BRACE, "Expect '{' before " + kind + " body");
+
+    auto body = parse_block();
+
+    if (!var_decl && check(TokenType::TT_SEMICOLON)) {
+        advance();
+        throw_error(_current, "semicolon is not allowed here");
+    }
+
+    return std::make_unique<FunctionStmt>(name, std::move(parameters), std::move(body));
 }
 
 Stmt::ptr Parser::parse_stmt() {
@@ -133,8 +174,6 @@ Stmt::ptr Parser::parse_stmt() {
         return parse_for_stmt();
     else if (match(TokenType::TT_BREAK))
         return parse_break_stmt();
-    else if (match(TokenType::TT_FUN))
-        return parse_function_stmt("function", false, false);
     else if (match(TokenType::TT_RETURN))
         return parse_return_stmt();
 
@@ -241,45 +280,6 @@ Stmt::ptr Parser::parse_break_stmt() {
 
     throw_error(_current, "a break statement may only be used within a loop");
     return nullptr;
-}
-
-Stmt::ptr Parser::parse_function_stmt(const std::string& kind, bool anon_decl, bool var_decl) {
-    Token name;
-    if (anon_decl && check(TokenType::TT_IDENTIFIER)) {
-        throw_error(_current, "anonymous function should not have a name");
-    }
-
-    if (!anon_decl) {
-        name = consume(TokenType::TT_IDENTIFIER, "Expect " + kind + " name");
-    }
-
-    if (name.type == TT_INVALID)
-        consume(TokenType::TT_LEFT_PAREN, "Expect '(' for " + kind + "");
-    else
-        consume(TokenType::TT_LEFT_PAREN, "Expect '(' after " + kind + " name");
-
-    std::vector<Token> parameters;
-    if (!check(TokenType::TT_RIGHT_PAREN)) {
-        do {
-            if (parameters.size() >= 255) {
-                // TODO: technically should peek() here instead of passing _current
-                throw_error(_current, "Can't have more than 255 parameters.");
-            }
-            parameters.push_back(consume(TokenType::TT_IDENTIFIER, "Expect parameter name"));
-        } while (match(TokenType::TT_COMMA));
-    }
-
-    consume(TokenType::TT_RIGHT_PAREN, "Expect ')' after parameters");
-    consume(TokenType::TT_LEFT_BRACE, "Expect '{' before " + kind + " body");
-
-    auto body = parse_block();
-
-    if (!var_decl && check(TokenType::TT_SEMICOLON)) {
-        advance();
-        throw_error(_current, "semicolon is not allowed here");
-    }
-
-    return std::make_unique<FunctionStmt>(name, std::move(parameters), std::move(body));
 }
 
 Stmt::ptr Parser::parse_return_stmt() {
@@ -456,7 +456,7 @@ Node::ptr Parser::parse_call_expr_arguments(Node::ptr callee) {
 
             Node::ptr arg;
             if (match(TokenType::TT_FUN)) {
-                arg = parse_function_stmt("anonymous function", true, false);
+                arg = parse_function_decl("anonymous function", true, false);
             } else {
                 arg = parse_expr();
             }

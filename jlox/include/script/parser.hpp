@@ -40,6 +40,7 @@ private:
 
     Stmt::ptr parse_decl();
     Stmt::ptr parse_var_decl();
+    Stmt::ptr parse_function_decl(const std::string& kind, bool anon_decl, bool var_decl);
 
     Stmt::ptr parse_stmt();
     Stmt::ptr parse_print_stmt();
@@ -48,7 +49,6 @@ private:
     Stmt::ptr parse_while_stmt();
     Stmt::ptr parse_for_stmt();
     Stmt::ptr parse_break_stmt();
-    Stmt::ptr parse_function_stmt(const std::string& kind, bool anon_decl, bool var_decl);
     Stmt::ptr parse_return_stmt();
 
     std::vector<Node::ptr> parse_block();
