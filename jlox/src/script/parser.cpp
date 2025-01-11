@@ -96,6 +96,8 @@ Stmt::ptr Parser::parse_decl() {
             return parse_var_decl();
         else if (match(TokenType::TT_FUN))
             return parse_function_decl("function", false, false);
+        else if (match(TokenType::TT_CLASS))
+            return parse_class_decl();
 
         return parse_stmt();
     } catch (const ParseError& e) {
@@ -159,6 +161,20 @@ Stmt::ptr Parser::parse_function_decl(const std::string& kind, bool anon_decl, b
     }
 
     return std::make_unique<FunctionStmt>(name, std::move(parameters), std::move(body));
+}
+
+Stmt::ptr Parser::parse_class_decl() {
+    Token name = consume(TokenType::TT_IDENTIFIER, "Expect class name");
+    consume(TokenType::TT_LEFT_BRACE, "Expect '{' before class body");
+
+    std::vector<Node::ptr> methods;
+    while (!check(TokenType::TT_RIGHT_BRACE) && _current.type != TokenType::TT_EOF) {
+        methods.push_back(std::move(parse_function_decl("method", false, false)));
+    }
+
+    consume(TokenType::TT_RIGHT_BRACE, "Expect '}' after class body");
+
+    return std::make_unique<ClassStmt>(name, std::move(methods));
 }
 
 Stmt::ptr Parser::parse_stmt() {

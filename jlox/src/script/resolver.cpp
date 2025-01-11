@@ -77,6 +77,11 @@ void Resolver::visit_return_stmt(ReturnStmt* stmt) {
     }
 }
 
+void Resolver::visit_class_stmt(ClassStmt* stmt) {
+    declare(stmt->name);
+    define(stmt->name);
+}
+
 void Resolver::visit_unary_expr(UnaryExpr* node) {
     resolve_expr(reinterpret_cast<Expr*>(node->expr.get()));
 }

@@ -96,6 +96,14 @@ void AstDumper::visit_return_stmt(ReturnStmt* stmt) {
     write_node("expr", stmt->expr.get());
 }
 
+void AstDumper::visit_class_stmt(ClassStmt* stmt) {
+    indent++;
+
+    write_str_field("type", "ClassStmt");
+    write_str_field("name", stmt->name.value);
+    write_node_array("functions", stmt->functions);
+}
+
 void AstDumper::visit_unary_expr(UnaryExpr* node) {
     indent++;
 

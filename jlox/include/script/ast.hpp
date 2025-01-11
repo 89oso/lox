@@ -25,6 +25,7 @@ struct WhileStmt;
 struct BreakStmt;
 struct FunctionStmt;
 struct ReturnStmt;
+struct ClassStmt;
 
 class Visitor {
 public:
@@ -37,6 +38,7 @@ public:
     virtual void visit_break_stmt(BreakStmt* stmt) = 0;
     virtual void visit_function_stmt(FunctionStmt* stmt) = 0;
     virtual void visit_return_stmt(ReturnStmt* stmt) = 0;
+    virtual void visit_class_stmt(ClassStmt* stmt) = 0;
 
     virtual void visit_unary_expr(UnaryExpr* node) = 0;
     virtual void visit_binary_expr(BinaryExpr* node) = 0;
@@ -71,6 +73,7 @@ struct Node {
         BreakStmt,
         FunctionStmt,
         ReturnStmt,
+        ClassStmt,
     };
 
     virtual ~Node() = default;
@@ -304,4 +307,16 @@ struct ReturnStmt : Stmt {
 
     Token keyword;
     Node::ptr expr;
+};
+
+struct ClassStmt : Stmt {
+    explicit ClassStmt(Token& name, std::vector<Node::ptr> functions);
+    void accept(Visitor* visitor) override;
+
+    u8 type() override {
+        return Node::Type::ClassStmt;
+    }
+
+    Token name;
+    std::vector<Node::ptr> functions;
 };

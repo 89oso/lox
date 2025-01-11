@@ -1,8 +1,9 @@
 program               ::= decl* EOF ;
 
-decl                  ::= var_decl | fun_decl | stmt ;
+decl                  ::= class_decl | var_decl | fun_decl | stmt ;
 fun_decl              ::= "fun" function ;
 var_decl              ::= "var" IDENTIFIER ( "=" expr )? ";" ;
+class_decl            ::= "class" IDENTIFIER "{" function* "}" ;
 
 stmt                  ::= expr_stmt | print_stmt | block_stmt | if_stmt | while_stmt | for_stmt | break_stmt | return_stmt;
 expr_stmt             ::= expr ";" ;

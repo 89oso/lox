@@ -41,6 +41,7 @@ private:
     Stmt::ptr parse_decl();
     Stmt::ptr parse_var_decl();
     Stmt::ptr parse_function_decl(const std::string& kind, bool anon_decl, bool var_decl);
+    Stmt::ptr parse_class_decl();
 
     Stmt::ptr parse_stmt();
     Stmt::ptr parse_print_stmt();

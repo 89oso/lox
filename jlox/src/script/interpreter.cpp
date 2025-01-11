@@ -122,6 +122,9 @@ void Interpreter::visit_return_stmt(ReturnStmt* stmt) {
     _control_flow_state = ControlFlowState::Return;
 }
 
+void Interpreter::visit_class_stmt(ClassStmt* stmt) {
+}
+
 void Interpreter::visit_unary_expr(UnaryExpr* node) {
     auto variable = evaluate(node->expr.get());
     if (node->op.type == TokenType::TT_MINUS) {

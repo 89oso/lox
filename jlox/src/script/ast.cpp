@@ -159,3 +159,12 @@ ReturnStmt::ReturnStmt(Token& keyword, Node::ptr expr)
 void ReturnStmt::accept(Visitor* visitor) {
     visitor->visit_return_stmt(this);
 }
+
+ClassStmt::ClassStmt(Token& name, std::vector<Node::ptr> functions)
+    : name(name),
+      functions(std::move(functions)) {
+}
+
+void ClassStmt::accept(Visitor* visitor) {
+    visitor->visit_class_stmt(this);
+}
