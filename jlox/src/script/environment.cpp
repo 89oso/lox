@@ -41,10 +41,10 @@ void ScriptEnvironment::define_variable(const std::string& name, ScriptObject& v
     _variables[name] = value;
 }
 
-void ScriptEnvironment::define_function(const std::string& name, u16 arity, ScriptObject::callable_type function) {
+void ScriptEnvironment::define_function(const std::string& name, u16 arity, ScriptCallable::function_type& function) {
     ScriptObject variable;
     variable.type = ScriptObjectType::Callable;
-    variable.value = std::make_shared<ScriptObject::Callable>(arity, function);
+    variable.value = std::make_shared<ScriptCallable>(arity, function); // TODO: Arc::make<ScriptCallable>()
 
     _variables.insert({ name, variable });
 }

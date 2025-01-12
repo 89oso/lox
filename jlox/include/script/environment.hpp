@@ -1,6 +1,7 @@
 #pragma once
 
 #include "token.hpp"
+#include "callable.hpp"
 #include "object.hpp"
 
 #include <unordered_map>
@@ -16,7 +17,7 @@ public:
     void assign_variable_at(usize distance, const Token& name, ScriptObject& value);
 
     void define_variable(const std::string& name, ScriptObject& value);
-    void define_function(const std::string& name, u16 arity, ScriptObject::callable_type function);
+    void define_function(const std::string& name, u16 arity, ScriptCallable::function_type& function);
 
     ScriptObject& find_variable(const Token& name);
     ScriptObject& find_variable_at(usize distance, const Token& name);

@@ -133,7 +133,7 @@ struct LiteralExpr : Expr {
     }
 
     LiteralType literal_type;
-    std::variant<bool, double, std::string> value;
+    std::variant<bool, f64, std::string> value;
 };
 
 struct LogicalExpr : Expr {

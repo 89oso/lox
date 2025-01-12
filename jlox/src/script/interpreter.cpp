@@ -1,4 +1,5 @@
 #include "script/interpreter.hpp"
+#include "script/function.hpp"
 #include "common/exception.hpp"
 #include "common/finally.hpp"
 
@@ -37,7 +38,7 @@ void Interpreter::visit_print_stmt(PrintStmt* stmt) {
     } else if (variable.type == ScriptObjectType::String) {
         std::cout << std::get<std::string>(variable.value);
     } else if (variable.type == ScriptObjectType::Callable) {
-        auto callable = std::get<ScriptObject::Callable::ptr>(variable.value);
+        auto callable = std::get<Arc<ScriptCallable>>(variable.value);
         std::cout << callable->to_string();
     }
 
@@ -58,7 +59,7 @@ void Interpreter::visit_var_stmt(VarStmt* stmt) {
 }
 
 void Interpreter::visit_block_stmt(BlockStmt* stmt) {
-    static int counter = 0; // TODO: clean
+    static i32 counter = 0; // TODO: clean
     if (_control_flow_state != ControlFlowState::None)
         return;
 
@@ -230,8 +231,6 @@ void Interpreter::visit_grouping_expr(GroupingExpr* node) {
     evaluate(node->expr.get());
 }
 
-// TODO: strings currently come from the token created by the lexer (std::string)
-//     : maybe an arena for the whole AST would be a good idea?
 void Interpreter::visit_literal_expr(LiteralExpr* node) {
     ScriptObject variable;
 
@@ -303,7 +302,7 @@ void Interpreter::visit_call_expr(CallExpr* node) {
         arguments.push_back(evaluate(arg.get()));
     }
 
-    auto callable = std::get<ScriptObject::Callable::ptr>(callee.value);
+    auto callable = std::get<Arc<ScriptCallable>>(callee.value);
 
     if (arguments.size() != callable->arity) {
         throw RuntimeError(node->paren,
