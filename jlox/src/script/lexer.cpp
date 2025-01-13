@@ -1,6 +1,8 @@
 #include "script/lexer.hpp"
 #include <iostream>
 
+namespace script {
+
 Lexer::Lexer(const std::string& buffer)
     : _buffer(buffer),
       _current(0),
@@ -200,3 +202,5 @@ Token Lexer::identifier() {
 
     return Token(static_cast<TokenType>(type), _line, name);
 }
+
+} // namespace script

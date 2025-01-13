@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fmt/core.h>
 
+namespace script {
+
 const char* Token::reserved_keywords[] = {
     "and",   "class",  "else",  "false", "fun",  "for", "if",    "nil",   "or",
     "print", "return", "super", "this",  "true", "var", "while", "break",
@@ -96,3 +98,5 @@ void Token::print() {
     }
     std::cout << "\n";
 }
+
+} // namespace script

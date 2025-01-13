@@ -4,6 +4,8 @@
 
 #include <variant>
 
+namespace script {
+
 enum ScriptObjectType : u8 {
     Nil,
     Boolean,
@@ -19,3 +21,5 @@ struct ScriptObject {
 
     std::variant<bool, f64, std::string, Arc<ScriptCallable>> value;
 };
+
+} // namespace script

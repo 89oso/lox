@@ -6,6 +6,8 @@
 
 #include <unordered_map>
 
+namespace script {
+
 class ScriptEnvironment {
 public:
     ScriptEnvironment();
@@ -31,3 +33,5 @@ private:
 
     ScriptEnvironment* get_ancestor(usize distance);
 };
+
+} // namespace script

@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+namespace script {
+
 ScriptEnvironment::ScriptEnvironment()
     : _enclosing(0) {
 }
@@ -89,3 +91,5 @@ ScriptEnvironment* ScriptEnvironment::get_ancestor(usize distance) {
 
     return ancestor;
 }
+
+} // namespace script

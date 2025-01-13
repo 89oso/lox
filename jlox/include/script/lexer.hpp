@@ -3,6 +3,8 @@
 #include "token.hpp"
 #include <string>
 
+namespace script {
+
 class Lexer {
 public:
     using ptr = std::unique_ptr<Lexer>;
@@ -37,3 +39,5 @@ private:
     Token number();
     Token identifier();
 };
+
+} // namespace script

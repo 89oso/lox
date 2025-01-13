@@ -1,5 +1,7 @@
 #include "script/ast.hpp"
 
+namespace script {
+
 UnaryExpr::UnaryExpr(Token& op, Node::ptr expr)
     : op(op),
       expr(std::move(expr)) {
@@ -168,3 +170,5 @@ ClassStmt::ClassStmt(Token& name, std::vector<Node::ptr> functions)
 void ClassStmt::accept(Visitor* visitor) {
     visitor->visit_class_stmt(this);
 }
+
+} // namespace script

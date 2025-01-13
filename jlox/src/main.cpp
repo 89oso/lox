@@ -8,56 +8,58 @@
 
 // TODO: chapter 11 challenge 4
 
-namespace {
-    Interpreter interpreter;
+namespace script {
 
-    void process_buffer(const std::string& buffer) {
-        Parser parser(buffer);
+Interpreter interpreter;
 
-        std::vector<Node::ptr>& statements = parser.parse();
+void process_buffer(const std::string& buffer) {
+    Parser parser(buffer);
 
-        if (parser.error())
-            return;
+    std::vector<Node::ptr>& statements = parser.parse();
 
-        for (auto& stmt : statements) {
-            AstDumper json_dumper;
-            json_dumper.dump(stmt.get());
-        }
+    if (parser.error())
+        return;
 
-        Resolver resolver(&interpreter);
-        resolver.run(statements);
-
-        if (resolver.error())
-            return;
-
-        for (auto& stmt : statements) {
-            interpreter.interpret(stmt.get());
-        }
+    for (auto& stmt : statements) {
+        AstDumper json_dumper;
+        json_dumper.dump(stmt.get());
     }
 
-    void process_from_file(const char* path) {
-        std::ifstream file(path, std::ios::ate | std::ios::binary);
+    Resolver resolver(&interpreter);
+    resolver.run(statements);
 
-        if (!file.is_open()) {
-            std::cerr << "Failed to open script: " << path << "\n";
-            return;
-        }
+    if (resolver.error())
+        return;
 
-        usize size = file.tellg();
-        file.seekg(0, std::ios::beg);
-
-        std::string buffer;
-        if (size > 0) {
-            buffer.resize(size);
-            file.read(const_cast<char*>(buffer.data()), size);
-        }
-
-        file.close();
-
-        std::cout << "Processing script: " << path << "\n";
-        process_buffer(buffer);
+    for (auto& stmt : statements) {
+        interpreter.interpret(stmt.get());
     }
-} // namespace
+}
+
+void process_from_file(const char* path) {
+    std::ifstream file(path, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open script: " << path << "\n";
+        return;
+    }
+
+    usize size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::string buffer;
+    if (size > 0) {
+        buffer.resize(size);
+        file.read(const_cast<char*>(buffer.data()), size);
+    }
+
+    file.close();
+
+    std::cout << "Processing script: " << path << "\n";
+    process_buffer(buffer);
+}
+
+} // namespace script
 
 int main(int argc, char** argv) {
     if (argc > 2) {
@@ -68,9 +70,9 @@ int main(int argc, char** argv) {
     if (argc == 1) {
         std::string line;
         while (std::getline(std::cin, line)) {
-            process_buffer(line);
+            script::process_buffer(line);
         }
     } else {
-        process_from_file(argv[1]);
+        script::process_from_file(argv[1]);
     }
 }

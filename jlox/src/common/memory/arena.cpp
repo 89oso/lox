@@ -59,8 +59,7 @@ void* MemoryArena::alloc(MemoryArena* arena, usize size) {
     return arena_alloc_aligned(arena, size, ARENA_MEMORY_ALIGNTMENT);
 }
 
-static void*
-    arena_resize_aligned(MemoryArena* arena, void* old_ptr, usize old_size, usize new_size, usize alignment) {
+static void* arena_resize_aligned(MemoryArena* arena, void* old_ptr, usize old_size, usize new_size, usize alignment) {
     assert(arena);
     assert(arena->buf);
 

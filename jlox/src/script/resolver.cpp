@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+namespace script {
+
 Resolver::Resolver(Interpreter* interpreter)
     : _error(false),
       _interpreter(interpreter),
@@ -237,3 +239,5 @@ void Resolver::resolve_local(Expr* expr, Token& name) {
         depth--;
     }
 }
+
+} // namespace script

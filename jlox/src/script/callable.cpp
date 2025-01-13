@@ -1,5 +1,7 @@
 #include "script/callable.hpp"
 
+namespace script {
+
 ScriptCallable::ScriptCallable()
     : type(ScriptCallableType::Invalid),
       arity(0),
@@ -18,3 +20,5 @@ ScriptObject ScriptCallable::call(Interpreter* interpreter, std::vector<ScriptOb
 std::string ScriptCallable::to_string() {
     return "<fn>";
 }
+
+} // namespace script

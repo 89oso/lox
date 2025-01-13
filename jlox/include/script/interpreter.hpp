@@ -3,6 +3,8 @@
 #include "ast.hpp"
 #include "environment.hpp"
 
+namespace script {
+
 enum class ControlFlowState {
     None,
     Break,
@@ -65,3 +67,5 @@ private:
     void assert_object_type(Token& op, ScriptObjectType type, ScriptObject& object);
     void assert_objects_type(Token& op, ScriptObjectType type, ScriptObject& a, ScriptObject& b);
 };
+
+} // namespace script

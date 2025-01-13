@@ -4,6 +4,8 @@
 
 #include <string>
 
+namespace script {
+
 enum TokenType : u32 {
     TT_INVALID,
     TT_EOF,
@@ -85,3 +87,5 @@ struct Token {
 
     void print();
 };
+
+} // namespace script

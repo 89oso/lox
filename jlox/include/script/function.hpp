@@ -3,6 +3,8 @@
 #include "script/ast.hpp"
 #include "script/callable.hpp"
 
+namespace script {
+
 class ScriptEnvironment;
 
 struct ScriptFunction : ScriptCallable {
@@ -16,3 +18,5 @@ struct ScriptFunction : ScriptCallable {
     ScriptObject call(Interpreter* interpreter, std::vector<ScriptObject>& arguments) override;
     std::string to_string() override;
 };
+
+} // namespace script

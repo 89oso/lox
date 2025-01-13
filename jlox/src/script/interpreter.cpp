@@ -1,10 +1,14 @@
 #include "script/interpreter.hpp"
+
 #include "script/function.hpp"
+
 #include "common/exception.hpp"
 #include "common/finally.hpp"
 
 #include <iostream>
 #include <fmt/core.h>
+
+namespace script {
 
 Interpreter::Interpreter() {
     _global_env.set_name("global_scope");
@@ -60,6 +64,7 @@ void Interpreter::visit_var_stmt(VarStmt* stmt) {
 
 void Interpreter::visit_block_stmt(BlockStmt* stmt) {
     static i32 counter = 0; // TODO: clean
+
     if (_control_flow_state != ControlFlowState::None)
         return;
 
@@ -403,3 +408,5 @@ void Interpreter::assert_objects_type(Token& op, ScriptObjectType type, ScriptOb
         return;
     throw RuntimeError(op, "variable type mismatch");
 }
+
+} // namespace script

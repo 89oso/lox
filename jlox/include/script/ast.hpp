@@ -6,6 +6,8 @@
 
 #include "token.hpp"
 
+namespace script {
+
 struct UnaryExpr;
 struct BinaryExpr;
 struct GroupingExpr;
@@ -320,3 +322,5 @@ struct ClassStmt : Stmt {
     Token name;
     std::vector<Node::ptr> functions;
 };
+
+} // namespace script

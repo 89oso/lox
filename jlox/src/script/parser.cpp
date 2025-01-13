@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+namespace script {
+
 Parser::Parser(const std::string& buffer)
     : _previous(TT_INVALID),
       _error(false),
@@ -518,3 +520,5 @@ Node::ptr Parser::parse_primary_expr() {
     Parser::throw_error(_current, "Expect expression");
     return nullptr;
 }
+
+} // namespace script

@@ -1,6 +1,8 @@
 #include "script/function.hpp"
 #include "script/interpreter.hpp"
 
+namespace script {
+
 ScriptFunction::ScriptFunction(FunctionStmt* decl, Arc<ScriptEnvironment> closure, bool anonymous)
     : decl(decl),
       closure(closure),
@@ -45,3 +47,5 @@ ScriptObject ScriptFunction::call(Interpreter* interpreter, std::vector<ScriptOb
 std::string ScriptFunction::to_string() {
     return "<fn>";
 }
+
+} // namespace script

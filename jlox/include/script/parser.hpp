@@ -3,6 +3,8 @@
 #include "lexer.hpp"
 #include "ast.hpp"
 
+namespace script {
+
 class Parser {
 public:
     Parser(const std::string& buffer);
@@ -68,3 +70,5 @@ private:
     Node::ptr parse_call_expr_arguments(Node::ptr callee);
     Node::ptr parse_primary_expr();
 };
+
+} // namespace script

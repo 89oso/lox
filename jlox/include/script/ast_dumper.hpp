@@ -2,6 +2,8 @@
 
 #include "ast.hpp"
 
+namespace script {
+
 class AstDumper : public Visitor {
 public:
     AstDumper();
@@ -41,3 +43,5 @@ private:
     void write_node_array(const std::string& name, std::vector<Node::ptr>& nodes);
     void write_token_array(const std::string& name, std::vector<Token>& tokens);
 };
+
+} // namespace script

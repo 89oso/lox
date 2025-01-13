@@ -37,12 +37,12 @@ private:
 
 class RuntimeError : public std::exception {
 public:
-    RuntimeError(const Token& token, const std::string& message)
+    RuntimeError(const script::Token& token, const std::string& message)
         : _token(token),
           _message(message) {
     }
 
-    const Token& token() {
+    const script::Token& token() {
         return _token;
     }
 
@@ -51,6 +51,6 @@ public:
     }
 
 private:
-    Token _token;
+    script::Token _token;
     std::string _message;
 };

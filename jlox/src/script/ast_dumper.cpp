@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+namespace script {
+
 AstDumper::AstDumper()
     : indent{ 0 } {
     buffer.reserve(1000);
@@ -338,3 +340,5 @@ void AstDumper::write_token_array(const std::string& name, std::vector<Token>& t
         write("},", true, true);
     }
 }
+
+} // namespace script

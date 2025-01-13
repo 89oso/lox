@@ -2,6 +2,8 @@
 
 #include "interpreter.hpp"
 
+namespace script {
+
 enum class ScopeType {
     Global,
     Function,
@@ -63,3 +65,5 @@ private:
 
     void resolve_local(Expr* expr, Token& name);
 };
+
+} // namespace script

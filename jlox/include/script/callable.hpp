@@ -6,6 +6,8 @@
 #include <functional>
 #include <vector>
 
+namespace script {
+
 enum ScriptCallableType : u8 {
     Invalid,
     Builtin,
@@ -27,3 +29,5 @@ struct ScriptCallable {
     virtual ScriptObject call(Interpreter* interpreter, std::vector<ScriptObject>& arguments);
     virtual std::string to_string();
 };
+
+} // namespace script
