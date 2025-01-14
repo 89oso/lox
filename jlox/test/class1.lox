@@ -1,13 +1,4 @@
-class Breakfast {
-    cook() {
-        print "Eggs a-fryin'!";
-    }
+class Bagel {}
 
-    serve(who) {
-        print "Enjoy your breakfast, " + who + ".";
-    }
-}
-
-print Breakfast;
-
-Breakfast();
+var bagel = Bagel();
+print bagel;

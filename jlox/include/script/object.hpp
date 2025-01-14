@@ -12,14 +12,18 @@ enum ScriptObjectType : u8 {
     Number,
     String,
     Callable,
+    Class,
+    ClassInstance,
 };
 
-class ScriptCallable;
+struct ScriptCallable;
+struct ScriptClass;
+struct ScriptClassInstance;
 
 struct ScriptObject {
     u8 type;
 
-    std::variant<bool, f64, std::string, Arc<ScriptCallable>> value;
+    std::variant<bool, f64, std::string, Arc<ScriptCallable>, Arc<ScriptClass>, Arc<ScriptClassInstance>> value;
 };
 
 } // namespace script

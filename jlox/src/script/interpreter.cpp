@@ -1,5 +1,7 @@
 #include "script/interpreter.hpp"
 
+#include "script/class.hpp"
+#include "script/class_instance.hpp"
 #include "script/function.hpp"
 
 #include "common/exception.hpp"
@@ -44,6 +46,12 @@ void Interpreter::visit_print_stmt(PrintStmt* stmt) {
     } else if (variable.type == ScriptObjectType::Callable) {
         auto callable = std::get<Arc<ScriptCallable>>(variable.value);
         std::cout << callable->to_string();
+    } else if (variable.type == ScriptObjectType::Class) {
+        auto klass = std::get<Arc<ScriptClass>>(variable.value);
+        std::cout << klass->to_string();
+    } else if (variable.type == ScriptObjectType::ClassInstance) {
+        auto klass_instance = std::get<Arc<ScriptClassInstance>>(variable.value);
+        std::cout << klass_instance->to_string();
     }
 
     std::cout << "\n";
@@ -129,6 +137,12 @@ void Interpreter::visit_return_stmt(ReturnStmt* stmt) {
 }
 
 void Interpreter::visit_class_stmt(ClassStmt* stmt) {
+    ScriptObject klass;
+    klass.type = ScriptObjectType::Class;
+
+    _current_env->define_variable(stmt->name.value, klass);
+    klass.value = std::make_shared<ScriptClass>(stmt->name.value); // TODO: Arc::make<ScriptClass>
+    _current_env->assign_variable(stmt->name, klass);
 }
 
 void Interpreter::visit_unary_expr(UnaryExpr* node) {
@@ -298,7 +312,7 @@ void Interpreter::visit_assignment_expr(AssignmentExpr* node) {
 
 void Interpreter::visit_call_expr(CallExpr* node) {
     ScriptObject callee = evaluate(node->callee.get());
-    if (callee.type != ScriptObjectType::Callable) {
+    if (callee.type != ScriptObjectType::Callable && callee.type != ScriptObjectType::Class) {
         throw RuntimeError(node->paren, "Can only call functions and classes");
     }
 
@@ -307,7 +321,9 @@ void Interpreter::visit_call_expr(CallExpr* node) {
         arguments.push_back(evaluate(arg.get()));
     }
 
-    auto callable = std::get<Arc<ScriptCallable>>(callee.value);
+    ScriptCallable* callable = callee.type == ScriptObjectType::Callable
+                                   ? std::get<Arc<ScriptCallable>>(callee.value).get()
+                                   : std::get<Arc<ScriptClass>>(callee.value).get();
 
     if (arguments.size() != callable->arity) {
         throw RuntimeError(node->paren,

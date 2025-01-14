@@ -22,6 +22,8 @@ add_executable(jlox
     src/script/ast.cpp
     src/script/ast_dumper.cpp
     src/script/callable.cpp
+    src/script/class.cpp
+    src/script/class_instance.cpp
     src/script/environment.cpp
     src/script/function.cpp
     src/script/interpreter.cpp
