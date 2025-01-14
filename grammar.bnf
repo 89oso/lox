@@ -16,7 +16,7 @@ break_stmt            ::= "break" ";" ;
 return_stmt           ::= "return" expr? ";" ;
 
 expr                  ::= assignment_expr
-assignment_expr       ::= IDENTIFIER '=' assignment_expr | conditional_expr;
+assignment_expr       ::= ( call_expr "." )? IDENTIFIER '=' assignment_expr | conditional_expr;
 conditional_expr      ::= logical_or_expr ('?' expr ':' expr)* ;
 logical_or_expr       ::= logical_and_expr ("or" logical_and_expr)* ;
 logical_and_expr      ::= equality_expr ("and" equality_expr)* ;
@@ -25,7 +25,7 @@ comparison_expr       ::= term_expr  ( ( '>' | ">=" | '<' | "<=" ) term_expr  )*
 term_expr             ::= factor_expr ( ( '-' | '+' ) factor_expr  )* ;
 factor_expr           ::= unary_expr ( ( '/' | '*' ) unary_expr )* ;
 unary_expr            ::= ( '!' | '-' ) unary_expr | call_expr ;
-call_expr             ::= primary_expr ( "(" arguments? ")" )* ;
+call_expr             ::= primary_expr ( "(" arguments? ")" | "." IDENTIFIER )* ;
 primary_expr          ::= NUMBER | STRING | "true" | "false" | "nil" | "(" expr ")" IDENTIFIER ;
 
 arguments             ::= expr ( "," expr )* ;

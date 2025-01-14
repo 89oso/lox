@@ -144,6 +144,15 @@ void Resolver::visit_call_expr(CallExpr* node) {
     }
 }
 
+void Resolver::visit_get_expr(GetExpr* node) {
+    resolve_expr(reinterpret_cast<Expr*>(node->object.get()));
+}
+
+void Resolver::visit_set_expr(SetExpr* node) {
+    resolve_expr(reinterpret_cast<Expr*>(node->object.get()));
+    resolve_expr(reinterpret_cast<Expr*>(node->value.get()));
+}
+
 void Resolver::throw_error(Token& token, const std::string& error) {
     _error = true;
 

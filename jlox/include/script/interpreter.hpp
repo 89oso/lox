@@ -38,6 +38,8 @@ public:
     void visit_variable_expr(VariableExpr* node) override;
     void visit_assignment_expr(AssignmentExpr* node) override;
     void visit_call_expr(CallExpr* node) override;
+    void visit_get_expr(GetExpr* node) override;
+    void visit_set_expr(SetExpr* node) override;
 
     ScriptEnvironment& global_env();
 

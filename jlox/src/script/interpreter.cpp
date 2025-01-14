@@ -334,6 +334,32 @@ void Interpreter::visit_call_expr(CallExpr* node) {
     push_variable(result.type, result);
 }
 
+void Interpreter::visit_get_expr(GetExpr* node) {
+    ScriptObject obj = evaluate(node->object.get());
+    if (obj.type != ScriptObjectType::ClassInstance) {
+        throw RuntimeError(node->name, "Only class instances have properties");
+    }
+
+    auto instance = std::get<Arc<ScriptClassInstance>>(obj.value);
+
+    auto field = instance->get(node->name);
+    push_variable(field.type, field);
+}
+
+void Interpreter::visit_set_expr(SetExpr* node) {
+    ScriptObject obj = evaluate(node->object.get());
+    if (obj.type != ScriptObjectType::ClassInstance) {
+        throw RuntimeError(node->name, "Only class instances have fields");
+    }
+
+    auto instance = std::get<Arc<ScriptClassInstance>>(obj.value);
+
+    auto value = evaluate(node->value.get());
+    instance->set(node->name, value);
+
+    push_variable(value.type, value);
+}
+
 ScriptEnvironment& Interpreter::global_env() {
     return _global_env;
 }

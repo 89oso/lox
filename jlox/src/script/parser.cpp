@@ -337,6 +337,9 @@ Node::ptr Parser::parse_assignment_expr() {
         if (expr->type() == Node::Type::VariableExpr) {
             Token name = reinterpret_cast<VariableExpr*>(expr.get())->name;
             return std::make_unique<AssignmentExpr>(name, std::move(value));
+        } else if (expr->type() == Node::Type::GetExpr) {
+            GetExpr* get = reinterpret_cast<GetExpr*>(expr.get());
+            return std::make_unique<SetExpr>(std::move(get->object), get->name, std::move(value));
         }
 
         throw_error(equals, "Invalid assignment target");
@@ -455,6 +458,9 @@ Node::ptr Parser::parse_call_expr() {
     while (true) {
         if (match(TokenType::TT_LEFT_PAREN)) {
             expr = parse_call_expr_arguments(std::move(expr));
+        } else if (match(TokenType::TT_DOT)) {
+            Token name = consume(TokenType::TT_IDENTIFIER, "Expect property name after '.'");
+            expr = std::make_unique<GetExpr>(std::move(expr), name);
         } else {
             break;
         }

@@ -254,6 +254,23 @@ void AstDumper::visit_call_expr(CallExpr* node) {
     write_node_array("arguments", node->arguments);
 }
 
+void AstDumper::visit_get_expr(GetExpr* node) {
+    indent++;
+
+    write_str_field("type", "GetExpr");
+    write_str_field("name", node->name.value);
+    write_node("object", node->object.get());
+}
+
+void AstDumper::visit_set_expr(SetExpr* node) {
+    indent++;
+
+    write_str_field("type", "SetExpr");
+    write_str_field("name", node->name.value);
+    write_node("object", node->object.get());
+    write_node("value", node->value.get());
+}
+
 void AstDumper::write(const std::string& str, bool indentation, bool newline) {
     if (indentation) {
         for (u32 i = 0; i < indent; i++)

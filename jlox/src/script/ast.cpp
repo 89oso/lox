@@ -84,6 +84,25 @@ void CallExpr::accept(Visitor* visitor) {
     visitor->visit_call_expr(this);
 }
 
+GetExpr::GetExpr(Node::ptr object, Token& name)
+    : object(std::move(object)),
+      name(name) {
+}
+
+void GetExpr::accept(Visitor* visitor) {
+    visitor->visit_get_expr(this);
+}
+
+SetExpr::SetExpr(Node::ptr object, Token& name, Node::ptr value)
+    : object(std::move(object)),
+      name(name),
+      value(std::move(value)) {
+}
+
+void SetExpr::accept(Visitor* visitor) {
+    visitor->visit_set_expr(this);
+}
+
 PrintStmt::PrintStmt(Node::ptr expr)
     : expr(std::move(expr)) {
 }

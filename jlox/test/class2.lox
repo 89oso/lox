@@ -1,0 +1,7 @@
+class Object {
+}
+
+var obj = Object();
+obj.value = 42;
+
+print obj.value;
